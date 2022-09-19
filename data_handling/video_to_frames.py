@@ -36,6 +36,7 @@ from tqdm import tqdm   # create progress bars, see sample usage below
 
 from utils.video_utilities import get_trim_start_end_frames, VideoTrimmingLimits
 from utils.misc_utilities import find_next_folder_nbr
+#os.environ["IMAGEIO_FFMPEG_EXE"] = "/Users/ikolderu/Library/Caches/pip/wheels/1d/57/24/4eff6a03a9ea0e647568e8a5a0546cdf957e3cf005372c0245"
 
 
 matplotlib.use('Agg')   # Use 'Agg' backend to avoid memory overload
