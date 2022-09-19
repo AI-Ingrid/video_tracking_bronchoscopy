@@ -1,0 +1,6 @@
+matplotlib>=3.5.1
+numpy>=1.19.*
+tqdm==4.63.*
+imageio==2.9.*
+imageio_ffmpeg==0.4.3
+pillow>=9.0.1
