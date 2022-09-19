@@ -1,9 +1,9 @@
-class VirtualData:
+from data_handling.video_to_frames import *
+
+class VirtualDataset:
     def __init__(self):
-        pass
+        self.input_data_path = "/Users/ikolderu/Documents/Skole/Prosjektoppgave/video_tracking_bronchoscopy/data_handling/data/virtual_videos/"
+        self.output_data_path = "/Users/ikolderu/Documents/Skole/Prosjektoppgave/video_tracking_bronchoscopy/data_handling/data/virtual_frames"
     
-    def fetch_data(self):
-        pass
-    
-    def video_to_frames(self):
-        pass
+    def create_dataset(self):
+        convert_video_to_frames(self.input_data_path, self.output_data_path)
