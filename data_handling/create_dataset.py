@@ -1,5 +1,6 @@
 from data_handling.video_to_frames import *
 
+
 class VirtualDataset:
     def __init__(self):
         self.input_data_path = "/Users/ikolderu/Documents/Skole/Prosjektoppgave/video_tracking_bronchoscopy/data_handling/data/virtual_videos/"

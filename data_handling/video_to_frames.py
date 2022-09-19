@@ -23,6 +23,7 @@ The output structure is as follows:
 --Patient_003
     |...
 """
+
 import os
 import math
 import shutil

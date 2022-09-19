@@ -1,5 +1,6 @@
 from data_handling.create_dataset import VirtualDataset
 
+
 def main():
     print("LET'S GO RID")
     virtual_dataset = VirtualDataset()
