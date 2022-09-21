@@ -4,3 +4,5 @@ tqdm==4.63.*
 imageio==2.9.*
 imageio_ffmpeg==0.4.3
 pillow>=9.0.1
+torch~=1.12.1
+torchvision~=0.13.1

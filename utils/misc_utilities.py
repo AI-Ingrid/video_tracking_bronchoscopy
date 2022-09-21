@@ -45,7 +45,7 @@ def find_next_folder_nbr(dataset_dir):
         Path to a folder containing numbered subfolders
     """
     # List subfolders in the folder
-    subfolders = [p for p in os.listdir(dataset_dir)]
+    subfolders = [p for p in os.listdir(dataset_dir) if not p.startswith('.')]
     if len(subfolders) == 0:
         return 1
 
