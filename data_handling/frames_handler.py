@@ -3,11 +3,13 @@ import math
 import imageio
 import cv2
 
+import pandas as pd
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from tqdm import tqdm   # create progress bars, see sample usage below
 
+from parameters import frame_dimension, dataset_type
 from utils.video_utilities import get_trim_start_end_frames, VideoTrimmingLimits
 from utils.misc_utilities import find_next_folder_nbr
 
@@ -17,105 +19,139 @@ matplotlib.use('Agg')   # Use 'Agg' backend to avoid memory overload
 
 def convert_video_to_frames(INPUT_DATA_PATH, OUTPUT_PATH):
     """
-    Author: Ingrid Tveten (SINTEF)
-    Convert video files to frames. With this script you are given some examples of
-    how to determine how sequences are generated, etc.
-    The output structure is as follows:
-    --Patient_001
-        |---Sequence_001
-            |---frame_1.png
-            |---frame_2.png
-            |---...
-        |---Sequence_002
-            |---frame_1.png
-            |---frame_2.png
-            |---...
-        |...
-    --Patient_002
-        |---Sequence_001
-            |---frame_1.png
-            |---frame_2.png
-            |---...
-        |---Sequence_002
-            |...
-    --Patient_003
-        |...
+    Code build upon work from author: Ingrid Tveten (SINTEF)
     """
-    EXTRACT_FRAME_INTERVAL = 1  # Extract every x frames
-    # =======================================================
+    # Create frames from video if no frames exist
+    if len(os.listdir(OUTPUT_PATH)) <= 1:
+        print("Converting frames..")
 
-    VIDEO_LIST = [fn for fn in os.listdir(INPUT_DATA_PATH) if
-                (fn.lower().endswith('.avi') or fn.lower().endswith('.mpg')or fn.lower().endswith('.mp4'))]
-    #NB_PATIENTS = len(VIDEO_LIST)
-    print("Number of videos to convert: ", len(VIDEO_LIST))
-    NB_PATIENTS = 1
+        EXTRACT_FRAME_INTERVAL = 1  # Extract every x frames
 
-    for p in tqdm(range(NB_PATIENTS), 'Patient'):
+        # Hard coded for now
+        NB_PATIENTS = 1
+        FILES_LIST = os.listdir(INPUT_DATA_PATH)
 
-        # Create ./Patient_XX directory
-        next_patient_nbr = find_next_folder_nbr(dataset_dir=OUTPUT_PATH)
-        patient_dir = os.path.join(OUTPUT_PATH, f'Patient_{next_patient_nbr:03d}')
-        try:
-            os.makedirs(patient_dir, exist_ok=False)
-        except OSError as exc:
-            print(f"OSError: Patient folder {patient_dir} probably already exists")
-            exit(-1)
+        # Create list of videos
+        VIDEO_LIST = [fn for fn in FILES_LIST if
+                    (fn.lower().endswith('.avi') or fn.lower().endswith('.mpg') or fn.lower().endswith('.mp4'))]
 
-        # TODO: Adjust! Should return list of videos belonging to current patient.
-        #   Could be determined by videos having same date/time or other indicator.
-        videos_for_patient = [fn for fn in VIDEO_LIST]
+        # TODO: Dette kan være litt for hard koda for virtual dataset.. vi får se
+        # Create list of tuples with labels and belonging video
+        LABEL_LIST = []
+        for video_file in VIDEO_LIST:
+            video_name = video_file.split(".")[0]
+            index = FILES_LIST.index(video_name + "_branching.txt" )
+            LABEL_LIST.append((video_file, FILES_LIST[index]))
 
-        # Generate sequences
-        for video_fn in tqdm(videos_for_patient, 'Sequences'):
+        for p in tqdm(range(NB_PATIENTS), 'Patient'):
 
-            # Create ./Patient_XX/Sequence_XX directory
-            seq_nbr = find_next_folder_nbr(patient_dir)
-            seq_dir = os.path.join(patient_dir, f'Sequence_{seq_nbr:03d}')
+            # Create ./Patient_XX directory
+            next_patient_nbr = find_next_folder_nbr(dataset_dir=OUTPUT_PATH)
+            patient_dir = os.path.join(OUTPUT_PATH, f'Patient_{next_patient_nbr:03d}')
             try:
-                os.makedirs(seq_dir, exist_ok=False)
+                os.makedirs(patient_dir, exist_ok=False)
             except OSError as exc:
-                print(f"OSError: Sequence folder {seq_dir} probably already exists")
+                print(f"OSError: Patient folder {patient_dir} probably already exists")
                 exit(-1)
 
-            # Get full path to video file and read video data
-            video_path = os.path.join(INPUT_DATA_PATH, video_fn)
-            vid_reader = imageio.get_reader(video_path)
-            metadata = vid_reader.get_meta_data()
-            fps = metadata['fps']
-            duration = metadata['duration']
-            nb_frames = math.floor(metadata['fps'] * metadata['duration'])
+            videos_for_patient = [fn for fn in LABEL_LIST]
 
-            # TODO: If using full video, set start time = 0 and end time = duration,
-            #   but you can also get these numbers elsewhere and specify
-            trim_time = VideoTrimmingLimits(t1=0., t2=duration)
-            start_frame, end_frame = get_trim_start_end_frames(trim_time, fps, nb_frames)
+            # Generate sequences
+            for (video_fn, label) in tqdm(videos_for_patient, 'Sequences'):
 
-            # Loop through the frames of the video
-            for frnb, fr in enumerate(tqdm(range(start_frame, end_frame, int(EXTRACT_FRAME_INTERVAL)), 'Frames')):
-                arr = np.asarray(vid_reader.get_data(fr))   # Array: [H, W, 3]
+                # Create ./Patient_XX/Sequence_XX directory
+                seq_nbr = find_next_folder_nbr(patient_dir)
+                seq_dir = os.path.join(patient_dir, f'Sequence_{seq_nbr:03d}')
+                try:
+                    os.makedirs(seq_dir, exist_ok=False)
+                except OSError as exc:
+                    print(f"OSError: Sequence folder {seq_dir} probably already exists")
+                    exit(-1)
 
-                # Display figure and image
-                figure_size = (metadata['size'][0] / 100, metadata['size'][1] / 100)
-                fig = plt.figure(figsize=figure_size)
-                plt.imshow(arr, aspect='auto')
+                # Save the labels belonging to the video in the Sequence folder
+                read_file = pd.read_csv(INPUT_DATA_PATH + "/" + label)
+                read_file.to_csv(seq_dir + "/" + label, index=None)
 
-                # Adjust layout to avoid margins, axis ticks, etc. Save and close.
-                plt.axis('off')
-                plt.tight_layout(pad=0)
-                plt.savefig(os.path.join(seq_dir, f'frame_{frnb:d}.png'))
-                plt.close(fig)
+                # Get full path to video file and read video data
+                video_path = os.path.join(INPUT_DATA_PATH, video_fn)
+                vid_reader = imageio.get_reader(video_path)
+                metadata = vid_reader.get_meta_data()
+                fps = metadata['fps']
+                duration = metadata['duration']
+                nb_frames = math.floor(metadata['fps'] * metadata['duration'])
 
-            # Close reader before moving (video) files
-            vid_reader.close()
+                trim_time = VideoTrimmingLimits(t1=0., t2=duration)
+                start_frame, end_frame = get_trim_start_end_frames(trim_time, fps, nb_frames)
+
+                # Loop through the frames of the video
+                for frnb, fr in enumerate(tqdm(range(start_frame, end_frame, int(EXTRACT_FRAME_INTERVAL)), 'Frames')):
+                    arr = np.asarray(vid_reader.get_data(fr))   # Array: [H, W, 3]
+
+                    # Display figure and image
+                    figure_size = (metadata['size'][0] / 100, metadata['size'][1] / 100)
+                    fig = plt.figure(figsize=figure_size)
+                    plt.imshow(arr, aspect='auto')
+
+                    # Adjust layout to avoid margins, axis ticks, etc. Save and close.
+                    plt.axis('off')
+                    plt.tight_layout(pad=0)
+                    plt.savefig(os.path.join(seq_dir, f'frame_{frnb:d}.png'))
+                    plt.close(fig)
+
+                # Close reader before moving (video) files
+                vid_reader.close()
+        else:
+            print("Frames exist! No converting necessary")
 
 
-def crop_and_scale_the_frames(dataset_type, path_to_patients):
+def add_labels(path_to_frames, path_to_branching_file, frame_counter, frames):
+    """A help function for crop_scale_and_label_frames that labels the frames in a specific
+    sequence given from the path_to_frames parameter
+    """
+    # Create an array of the branching txt file
+    branches_file = open(path_to_branching_file)
+    branches_array = np.loadtxt(branches_file, delimiter=" ", dtype='int')
+
+    # Find the ratio between num frames and timestamps from the video
+    ratio = len(branches_array)/frame_counter
+
+    # TODO: Have (frame_num - 3) * ratio to get 3 frames before bifurcation such that you can see the bifurcation
+    # Create a label list with the correct label for a frame_num given by the list index
+    labels = [branches_array[int(frame_num*ratio)] for frame_num in range(0, frame_counter)]
+
+    # TODO: Go through labels again and set 5-10 frames before bifurcation true?
+    # Match label and frames
+
+    # TODO: Sort the frames  by path names, currently not the right order
+    labeled_frames = list(zip(frames, labels))
+
+    # TODO: Remove overwriting of csv file
+    # Write array to csv file
+    dataframe = pd.DataFrame(labeled_frames)
+    path_to_dataset = f"/Users/ikolderu/PycharmProjects/video_tracking_bronchoscopy/data_handling/data/{dataset_type}/{dataset_type}_dataset.csv"
+    dataframe.to_csv(path_to_dataset, header=False, index=False)
+
+
+    # Save frames and label in a dataset file
+    #file = open(f'f"/Users/ikolderu/PycharmProjects/video_tracking_bronchoscopy/data_handling/data/{dataset_type}/{dataset_type}_dataset_csv','w')
+    #writer = csv.writer(file)
+
+    #for index, frame in enumerate(frames):
+        #writer.writerow(frame, labels[index])
+    #file.close()
+
+    # Save only the labels in a file
+    #np.savetxt(path_to_frames + "/labels_for_each_frame.csv", labels, delimiter=",\n")
+    return labeled_frames
+
+
+def crop_scale_and_label_the_frames(dataset_type, path_to_patients):
     """ Crops the frames such that only the frame from the virtual video of the airway
     is stored and passed into the network. Overwrites the frames by storing the cropped
     frame as the frame """
 
     # Crop the frame by specifications from the virtual dataset
-    if dataset_type == 'virtual':
+    if dataset_type == 'virtual' or dataset_type == 'phantom':
         x_start = 538
         y_start = 107
         x_end = 1364
@@ -123,28 +159,54 @@ def crop_and_scale_the_frames(dataset_type, path_to_patients):
 
         # Go through all persons and theirs sequences to get every frame
         for patient in os.listdir(path_to_patients):
-            print("Going through patient: ", patient)
-            path_to_sequences = path_to_patients + "/" + patient
+            # Avoid going through hidden directories
+            if not patient.startswith("."):
+                print("Going through patient: ", patient)
+                path_to_sequences = path_to_patients + "/" + patient
 
-            for sequence in os.listdir(path_to_sequences):
-                print("Going through sequence: ", sequence)
-                path_to_frames = path_to_sequences + "/" + sequence
+                # Go through all video sequences
+                for sequence in os.listdir(path_to_sequences):
+                    # Avoid going through hidden directories
+                    if not patient.startswith("."):
+                        print("Going through sequence: ", sequence)
+                        path_to_frames = path_to_sequences + "/" + sequence
+                        path_to_branching_file = ""
+                        frame_counter = 0
+                        frame_list = []
 
-                for frame in os.listdir(path_to_frames):
-                    path_to_frame = path_to_frames + "/" + frame
-                    frame_cropped = cv2.imread(path_to_frame)
+                        # Go through every frame in a video sequence
+                        for file in os.listdir(path_to_frames):
 
-                    # Crop the frame
-                    #frame_cropped = frame[y_start:y_end, x_start:x_end]
+                            # Check for file being a frame
+                            if file.endswith(".png"):
+                                path_to_frame = path_to_frames + "/" + file
+                                frame = cv2.imread(path_to_frame)
 
-                    cv2.imshow("Original", frame_cropped)
-                    # Scale the frame down to (227 x 206)
-                    frame_scaled = cv2.resize(frame_cropped, (0, 0), fx=0.25, fy=0.25)
-                    cv2.imshow("Cropped", frame_scaled)
-                    print("Shape: ", frame_scaled.shape)
-                    cv2.waitKey(0)
+                                # Check if frame is not cropped and scaled before
+                                if frame.shape[0] > frame_dimension[0]:
 
-                    # Save the new frame
-                    #cv2.imwrite(path_to_frame, frame_scaled)
+                                    # Crop the frame
+                                    frame_cropped = frame[y_start:y_end, x_start:x_end]
+
+                                    # Scale the frame down to frame_dimension set in parameters.py f.ex: (256, 256)
+                                    frame_scaled = cv2.resize(frame_cropped, frame_dimension, interpolation=cv2.INTER_AREA)
+
+                                    # Save the new frame
+                                    cv2.imwrite(path_to_frame, frame_scaled)
+                                    frame_list.append(path_to_frame)
+
+                                else:
+                                    print("Frame is already cropped")
+                                    frame_list.append(path_to_frame)
+
+                                # Count frames in sequence
+                                frame_counter += 1
+
+                            # File is the branching.txt file
+                            elif file.endswith("branching.txt"):
+                                path_to_branching_file = path_to_frames + "/" + file
+
+                        # Add labels to the frames in current video
+                        add_labels(path_to_frames, path_to_branching_file, frame_counter, frame_list)
 
 
