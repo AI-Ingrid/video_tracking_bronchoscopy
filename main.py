@@ -1,5 +1,6 @@
+from torch import nn
 from parameters import *
-from data_handling.frames_handler import convert_video_to_frames, add_labels, crop_scale_and_label_the_frames
+from random import seed
 from data_handling.dataset_handler import *
 from torchvision import transforms
 
@@ -10,11 +11,12 @@ from neural_net_handling.train_network import Trainer, create_plots, compute_los
 
 def main():
     """ The function running the entire pipeline of the project """
+    seed()
+
     # Create frames, label them and preprocess them
     convert_video_to_frames(videos_path, frames_path)
-
-    crop_scale_and_label_the_frames(dataset_type, frames_path)
-
+    crop_scale_and_label_the_frames(dataset_type, network_type, frames_path, root_directory_path)
+    """
     # Create dataset
     data_transform = transforms.Compose([
         Rescale(256),
@@ -25,14 +27,12 @@ def main():
         ])
 
     bronchoscopy_dataset = BronchoscopyDataset(
-        csv_file=root_directory+"/"+dataset_type+"_dataset.csv",
+        csv_file=root_directory + "/" + dataset_type + "_dataset.csv",
         root_directory=root_directory,
         transform=data_transform)
 
-    # Create dataloader
-    dataset_loader = torch.utils.data.DataLoader(bronchoscopy_dataset, batch_size=batch_size, shuffle=True)
-
-    # TODO: Split in training, test, validation --> se train_network.py
+    # Load dataset
+    dataloaders = bronchoscopy_dataset.get_dataloaders(batch_size, test_split, validation_split)
 
     # Create a CNN model
     if network_type == "segment_det_net":
@@ -42,6 +42,7 @@ def main():
         neural_net = DirectionDetNet()
 
     else:
+        print("Neural network type not set")
         neural_net = None
 
     # Train the CNN model
@@ -51,21 +52,22 @@ def main():
         early_stop_count,
         epochs,
         neural_net,
-        dataset_loader
+        dataloaders
     )
     trainer.train()
 
+    # Visualize training
     create_plots(trainer, "Training")
 
     # Test CNN model
-    train, validation, test = dataset_loader
+    train, validation, test = dataloaders
     print("---- TRAINING ----")
     train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, nn.CrossEntropyLoss())
     print("---- VALIDATION ----")
     val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, nn.CrossEntropyLoss())
     print("---- TEST ----")
     test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, nn.CrossEntropyLoss())
-
+    """
 
 if __name__ == "__main__":
     main()

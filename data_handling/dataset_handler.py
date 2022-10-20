@@ -1,7 +1,8 @@
 import torch
 from data_handling.frames_handler import *
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, sampler
 from skimage import io, transform
+from torchvision import transforms
 
 
 class BronchoscopyDataset(Dataset):
@@ -34,6 +35,34 @@ class BronchoscopyDataset(Dataset):
 
         return sample
 
+    def get_dataloaders(self, batch_size, test_split, validation_split):
+        """ Splits the data into train, test and validation data """
+        # TODO: kan bli ubalanse mellom kategorier. Går nok greit for direction net men kanske ikke for segment
+        # TODO: Se på sklearn.model_selection sin train_test_split
+        # Split data into train-, test- and validation data
+        indices = list(range(len(self)))
+
+        # Test
+        test_split_index = int(np.floor(test_split * len(self)))
+        test_indices = np.random.choice(indices, size=test_split_index, replace=False)
+        test_sampler = sampler.SubsetRandomSampler(test_indices)
+        test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=test_sampler)
+
+        # Train (temporary)
+        temp_train_indices = list(set(indices) - set(test_indices))
+
+        # Validation
+        validation_split_index = int(np.floor(validation_split * len(temp_train_indices)))
+        validation_indices = np.random.choice(temp_train_indices, size=validation_split_index, replace=False)
+        validation_sampler = sampler.SubsetRandomSampler(validation_indices)
+        validation_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=validation_sampler)
+
+        # Train
+        train_indices = list(set(temp_train_indices) - set(validation_indices))
+        train_sampler = sampler.SubsetRandomSampler(train_indices)
+        train_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=train_sampler, drop_last=True)
+
+        return train_loader, validation_loader, test_loader
 
 """ Below: Classes for transforming the objects from the dataset class
 such as rescaling or random cropping of the frames or converting the frames into

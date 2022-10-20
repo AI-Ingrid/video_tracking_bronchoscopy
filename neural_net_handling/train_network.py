@@ -78,7 +78,7 @@ class Trainer:
 
         # Transfer model to GPU VRAM, if possible.
         self.model = utils.to_cuda(self.model)
-        print(self.model)
+        #print(self.model)
 
         # Define our optimizer.
         self.optimizer = torch.optim.Adam(self.model.parameters(),
@@ -173,7 +173,10 @@ class Trainer:
         for epoch in range(self.epochs):
             self.epoch = epoch
             # Perform a full pass through all the training samples
+            print("HERE 0")
+            print("type: ", type(self.dataloader_train))
             for X_batch, Y_batch in self.dataloader_train:
+                print("HERE 1")
                 loss = self.train_step(X_batch, Y_batch)
                 self.train_history["loss"][self.global_step] = loss
                 self.global_step += 1

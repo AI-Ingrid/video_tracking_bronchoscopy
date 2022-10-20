@@ -104,7 +104,7 @@ def convert_video_to_frames(INPUT_DATA_PATH, OUTPUT_PATH):
             print("Frames exist! No converting necessary")
 
 
-def add_labels(path_to_frames, path_to_branching_file, frame_counter, frames):
+def add_labels(network_type, path_to_frames, path_to_branching_file, frame_counter, frames, dataframe):
     """A help function for crop_scale_and_label_frames that labels the frames in a specific
     sequence given from the path_to_frames parameter
     """
@@ -112,40 +112,69 @@ def add_labels(path_to_frames, path_to_branching_file, frame_counter, frames):
     branches_file = open(path_to_branching_file)
     branches_array = np.loadtxt(branches_file, delimiter=" ", dtype='int')
 
-    # Find the ratio between num frames and timestamps from the video
-    ratio = len(branches_array)/frame_counter
+    if network_type == "direction_det_net":
+        # Order the list of frames from the video
+        print("before: ", frames)
+        frames.sort()
+        print("after: ", frames)
+        for index, frame in enumerate(frames[5:]):
+            # Add a new forward row
+            new_forward_row = pd.DataFrame({
+                "frame 1": frames[index-4],
+                "frame 2": frames[index-3],
+                "frame 3": frames[index-2],
+                "frame 4": frames[index-1],
+                "frame 5": frames[index],
+                "label": 1  # Forward,
+            })
+            new_backward_row = pd.DataFrame({
+                "frame 1": frames[index],
+                "frame 2": frames[index-1],
+                "frame 3": frames[index-2],
+                "frame 4": frames[index-3],
+                "frame 5": frames[index-4],
+                "label": 0  # Backward,
+            })
+            dataframe = dataframe.append(new_forward_row, ignore_index=True)
+            dataframe = dataframe.append(new_backward_row, ignore_index=True)
+            print(dataframe.head())
 
-    # TODO: Have (frame_num - 3) * ratio to get 3 frames before bifurcation such that you can see the bifurcation
-    # Create a label list with the correct label for a frame_num given by the list index
-    labels = [branches_array[int(frame_num*ratio)] for frame_num in range(0, frame_counter)]
+    elif network_type == "segment_det_net":
+        # Find the ratio between num frames and timestamps from the video
+        ratio = len(branches_array) / frame_counter
 
-    # TODO: Go through labels again and set 5-10 frames before bifurcation true?
-    # Match label and frames
+        # TODO: Have (frame_num - 3) * ratio to get 3 frames before bifurcation such that you can see the bifurcation
+        # Create a label list with the correct label for a frame_num given by the list index
+        labels = [branches_array[int(frame_num * ratio)] for frame_num in range(0, frame_counter)]
 
-    # TODO: Sort the frames  by path names, currently not the right order
-    labeled_frames = list(zip(frames, labels))
+        # TODO: Go through labels again and set 5-10 frames before bifurcation true?
+        # Match label and frames
 
-    # TODO: Remove overwriting of csv file
-    # Write array to csv file
-    dataframe = pd.DataFrame(labeled_frames)
-    path_to_dataset = f"/Users/ikolderu/PycharmProjects/video_tracking_bronchoscopy/data_handling/data/{dataset_type}/{dataset_type}_dataset.csv"
-    dataframe.to_csv(path_to_dataset, header=False, index=False)
+        # TODO: Sort the frames  by path names, currently not the right order
+        labeled_frames = list(zip(frames, labels))
+
+        # TODO: Remove overwriting of csv file
+        # Write array to csv file
+        dataframe = pd.DataFrame(labeled_frames)
+        path_to_dataset = f"/Users/ikolderu/PycharmProjects/video_tracking_bronchoscopy/data_handling/data/{dataset_type}/{dataset_type}_dataset.csv"
+        dataframe.to_csv(path_to_dataset, header=False, index=False)
+
+    else:
+        print("No network type registered")
+        # Save frames and label in a dataset file
+        #file = open(f'f"/Users/ikolderu/PycharmProjects/video_tracking_bronchoscopy/data_handling/data/{dataset_type}/{dataset_type}_dataset_csv','w')
+        #writer = csv.writer(file)
+
+        #for index, frame in enumerate(frames):
+            #writer.writerow(frame, labels[index])
+        #file.close()
+
+        # Save only the labels in a file
+        #np.savetxt(path_to_frames + "/labels_for_each_frame.csv", labels, delimiter=",\n")
 
 
-    # Save frames and label in a dataset file
-    #file = open(f'f"/Users/ikolderu/PycharmProjects/video_tracking_bronchoscopy/data_handling/data/{dataset_type}/{dataset_type}_dataset_csv','w')
-    #writer = csv.writer(file)
 
-    #for index, frame in enumerate(frames):
-        #writer.writerow(frame, labels[index])
-    #file.close()
-
-    # Save only the labels in a file
-    #np.savetxt(path_to_frames + "/labels_for_each_frame.csv", labels, delimiter=",\n")
-    return labeled_frames
-
-
-def crop_scale_and_label_the_frames(dataset_type, path_to_patients):
+def crop_scale_and_label_the_frames(dataset_type, network_type, path_to_patients, root_directory_path):
     """ Crops the frames such that only the frame from the virtual video of the airway
     is stored and passed into the network. Overwrites the frames by storing the cropped
     frame as the frame """
@@ -156,6 +185,15 @@ def crop_scale_and_label_the_frames(dataset_type, path_to_patients):
         y_start = 107
         x_end = 1364
         y_end = 1015
+
+        if network_type == "direction_det_net":
+            data_frame = pd.Dataframe(columns=["Frame 1", "Frame 2", "Frame 3", "Frame 4", "Frame 5", "Label"])
+
+        elif network_type == "segment_det_net":
+            data_frame = None
+        else:
+            print("No network type registered")
+            data_frame = None
 
         # Go through all persons and theirs sequences to get every frame
         for patient in os.listdir(path_to_patients):
@@ -207,6 +245,8 @@ def crop_scale_and_label_the_frames(dataset_type, path_to_patients):
                                 path_to_branching_file = path_to_frames + "/" + file
 
                         # Add labels to the frames in current video
-                        add_labels(path_to_frames, path_to_branching_file, frame_counter, frame_list)
+                        add_labels(network_type, path_to_frames, path_to_branching_file, frame_counter, frame_list, data_frame)
 
-
+        # Convert data_frame into CSV file in order to store the dataset as a file
+        dataset_path = root_directory_path + "/" + dataset_type + "_" + network_type + "_dataset.csv"
+        data_frame.to_csv(dataset_path, ignore_index=True)
