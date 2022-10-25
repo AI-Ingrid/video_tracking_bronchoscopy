@@ -1,6 +1,4 @@
-from torch import nn
 from parameters import *
-from random import seed
 from data_handling.dataset_handler import *
 from torchvision import transforms
 
@@ -11,24 +9,19 @@ from neural_net_handling.train_network import Trainer, create_plots, compute_los
 
 def main():
     """ The function running the entire pipeline of the project """
-    seed()
-
     # Create frames, label them and preprocess them
     convert_video_to_frames(videos_path, frames_path)
-    crop_scale_and_label_the_frames(dataset_type, network_type, frames_path, root_directory_path)
-    """
+    #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
+
     # Create dataset
+    # TODO: Add RandomCrop? Normalize?
     data_transform = transforms.Compose([
-        Rescale(256),
-        RandomCrop(224),
         ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                             std=[0.229, 0.224, 0.225])
         ])
 
     bronchoscopy_dataset = BronchoscopyDataset(
-        csv_file=root_directory + "/" + dataset_type + "_dataset.csv",
-        root_directory=root_directory,
+        csv_file=root_directory_path + f"/{dataset_type}_{network_type}_dataset.csv",
+        root_directory=root_directory_path,
         transform=data_transform)
 
     # Load dataset
@@ -54,6 +47,8 @@ def main():
         neural_net,
         dataloaders
     )
+    train, validation, test = dataloaders
+    """
     trainer.train()
 
     # Visualize training
@@ -61,6 +56,7 @@ def main():
 
     # Test CNN model
     train, validation, test = dataloaders
+    
     print("---- TRAINING ----")
     train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, nn.CrossEntropyLoss())
     print("---- VALIDATION ----")

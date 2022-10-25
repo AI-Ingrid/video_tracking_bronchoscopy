@@ -2,7 +2,6 @@ import torch
 from data_handling.frames_handler import *
 from torch.utils.data import Dataset, sampler
 from skimage import io, transform
-from torchvision import transforms
 
 
 class BronchoscopyDataset(Dataset):
@@ -37,7 +36,6 @@ class BronchoscopyDataset(Dataset):
 
     def get_dataloaders(self, batch_size, test_split, validation_split):
         """ Splits the data into train, test and validation data """
-        # TODO: kan bli ubalanse mellom kategorier. Går nok greit for direction net men kanske ikke for segment
         # TODO: Se på sklearn.model_selection sin train_test_split
         # Split data into train-, test- and validation data
         indices = list(range(len(self)))

@@ -36,7 +36,7 @@ def find_next_folder_nbr(dataset_dir):
     find the next integer that has not yet been used for a folder.
 
     Example: If the folders in the path-like object 'dataset_dir' are labelled
-        'Patient_001', 'Patient_002', and 'Patient_003', the function will
+        'Patient_001', 'Patient_002', and 'Patient_001', the function will
         return 4 (the next integer in the sequence).
 
     Parameters
