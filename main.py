@@ -1,4 +1,5 @@
 from parameters import *
+import torch
 from data_handling.dataset_handler import *
 from torchvision import transforms
 
@@ -10,7 +11,7 @@ from neural_net_handling.train_network import Trainer, create_plots, compute_los
 def main():
     """ The function running the entire pipeline of the project """
     # Create frames, label them and preprocess them
-    convert_video_to_frames(videos_path, frames_path)
+    #convert_video_to_frames(videos_path, frames_path)
     #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
 
     # Create dataset
@@ -48,22 +49,20 @@ def main():
         dataloaders
     )
     train, validation, test = dataloaders
-    """
+
     trainer.train()
 
     # Visualize training
     create_plots(trainer, "Training")
 
     # Test CNN model
-    train, validation, test = dataloaders
-    
     print("---- TRAINING ----")
-    train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, nn.CrossEntropyLoss())
+    train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
     print("---- VALIDATION ----")
-    val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, nn.CrossEntropyLoss())
+    val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, torch.nn.CrossEntropyLoss())
     print("---- TEST ----")
-    test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, nn.CrossEntropyLoss())
-    """
+    test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
+
 
 if __name__ == "__main__":
     main()

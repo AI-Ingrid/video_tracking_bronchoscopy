@@ -261,8 +261,6 @@ def add_labels(network_type, path_to_timestamp_file, path_to_position_file, fram
     """
     # Sort the list of frames from the video
     frames.sort(key=natural_keys)
-    # TODO: Delete first (and last frame?) here before labeling anv saving to dataframe?
-    # frames.pop(0)
     if network_type == "direction_det_net":
         # TODO: Maybe 5 frames is to little?
         # TODO put this in a help function?

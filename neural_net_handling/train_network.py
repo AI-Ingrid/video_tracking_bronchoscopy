@@ -59,7 +59,6 @@ class Trainer:
                  early_stop_count: int,
                  epochs: int,
                  model: torch.nn.Module,
-                 #dataset: typing.List[typing.List[typing.Tuple]]):
                  dataloaders: typing.List[torch.utils.data.DataLoader]):
         """
             Initialize our trainer class.
@@ -125,6 +124,22 @@ class Trainer:
             sep=", ")
         self.model.train()
 
+    def should_early_stop(self):
+        """
+            Checks if validation loss doesn't improve over early_stop_count epochs.
+        """
+        # Check if we have more than early_stop_count elements in our validation_loss list.
+        val_loss = self.validation_history["loss"]
+        if len(val_loss) < self.early_stop_count:
+            return False
+        # We only care about the last [early_stop_count] losses.
+        relevant_loss = list(val_loss.values())[-self.early_stop_count:]
+        first_loss = relevant_loss[0]
+        if first_loss == min(relevant_loss):
+            print("Early stop criteria met")
+            return True
+        return False
+
     def train_step(self, X_batch, Y_batch):
         """
         Perform forward, backward and gradient descent step here.
@@ -173,10 +188,11 @@ class Trainer:
         for epoch in range(self.epochs):
             self.epoch = epoch
             # Perform a full pass through all the training samples
-            print("HERE 0")
-            print("type: ", type(self.dataloader_train))
+            print("Dataloader train: ", self.dataloader_train, " type: ", type(self.dataloader_train))
             for X_batch, Y_batch in self.dataloader_train:
-                print("HERE 1")
+                print("X_batch: ", X_batch, " type: ", type(X_batch))
+                print("Y_batch: ", Y_batch, " type: ", type(Y_batch))
+
                 loss = self.train_step(X_batch, Y_batch)
                 self.train_history["loss"][self.global_step] = loss
                 self.global_step += 1

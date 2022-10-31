@@ -8,7 +8,7 @@ class BronchoscopyDataset(Dataset):
     """ The dataset class """
     def __init__(self, csv_file, root_directory, transform=None):
         # CSV file containing 2 columns: frame_path and label
-        self.labeled_frames = pd.read_csv(csv_file)
+        self.labeled_frames = pd.read_csv(csv_file, index_col=False)
         self.root_directory = root_directory
         self.transform = transform
 
@@ -37,7 +37,6 @@ class BronchoscopyDataset(Dataset):
     def get_dataloaders(self, batch_size, test_split, validation_split):
         """ Splits the data into train, test and validation data """
         # TODO: Se på sklearn.model_selection sin train_test_split
-        # Split data into train-, test- and validation data
         indices = list(range(len(self)))
 
         # Test
