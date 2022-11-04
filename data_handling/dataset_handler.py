@@ -11,6 +11,9 @@ class BronchoscopyDataset(Dataset):
         self.labeled_frames = pd.read_csv(csv_file, index_col=False)
         self.root_directory = root_directory
         self.transform = transform
+        # TODO: Add them
+        self.class_to_index = {}
+        self.classes = []
 
     def __len__(self):
         return len(self.labeled_frames)
@@ -23,16 +26,19 @@ class BronchoscopyDataset(Dataset):
 
         # Fetch columns from the csv for the given index
         frame_name = os.path.join(self.root_directory, self.labeled_frames.iloc[index, 0])
+
+        # Normalize the frame
+        #frame = io.imread(frame_name)/255.0
         frame = io.imread(frame_name)
         label = self.labeled_frames.iloc[index, 1]
 
         # Create a sample dictionary containing the column values
-        sample = {'frame': frame, 'label': label}
+        #sample = {'Frame': frame, 'Label': label}
 
         if self.transform:
-            sample = self.transform(sample)
+            frame = self.transform(frame)
 
-        return sample
+        return frame, label
 
     def get_dataloaders(self, batch_size, test_split, validation_split):
         """ Splits the data into train, test and validation data """
@@ -80,7 +86,7 @@ class Rescale(object):
         self.output_size = output_size
 
     def __call__(self, sample):
-        frame, label = sample['frame'], sample['label']
+        frame, label = sample['Frame'], sample['Label']
 
         h, w = frame.shape[:2]
         if isinstance(self.output_size, int):
@@ -95,7 +101,7 @@ class Rescale(object):
 
         frame = transform.resize(frame, (new_h, new_w))
 
-        return {'frame': frame, 'label': label}
+        return {'Frame': frame, 'Label': label}
 
 
 class RandomCrop(object):
@@ -115,7 +121,7 @@ class RandomCrop(object):
             self.output_size = output_size
 
     def __call__(self, sample):
-        frame, label = sample['frame'], sample['label']
+        frame, label = sample['Frame'], sample['Label']
 
         h, w = frame.shape[:2]
         new_h, new_w = self.output_size
@@ -126,21 +132,20 @@ class RandomCrop(object):
         frame = frame[top: top + new_h,
                       left: left + new_w]
 
-        return {'frame': frame, 'label': label}
+        return {'Frame': frame, 'Label': label}
 
 
 class ToTensor(object):
     """Convert ndarrays in sample to Tensors."""
 
-    def __call__(self, sample):
-        frame, label = sample['frame'], sample['label']
+    def __call__(self, frame):
+        #frame, label = sample['Frame'], sample['Label']
 
         # swap color axis because
         # numpy image: H x W x C
         # torch image: C x H x W
         frame = frame.transpose((2, 0, 1))
-        return {'frame': torch.from_numpy(frame),
-                'label': label}
+        return torch.from_numpy(frame)
 
 
 

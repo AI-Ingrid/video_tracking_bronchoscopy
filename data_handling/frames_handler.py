@@ -225,11 +225,15 @@ def match_frames_with_positions_and_timestamps(positions, path_to_timestamp_file
         best_match_position_tuple = (best_match_position[0], best_match_position[1], best_match_position[2])
         label = positions_and_labels[best_match_position_tuple]
 
-        # Add the frame (or frame path?) and label to dataframe
+        # Get 1d array representing the frame from the frame path
+        frame = cv2.imread(frame).flatten()
+
+        # Add the frame and label to dataframe
         labeled_frame = pd.DataFrame({
-            "Frame": frame,
-            "Label": label,
-        }, index=[0])
+            'Frame': [frame],
+            'Label': label,
+        }).reset_index(drop=True)
+
         # Store labeled frame in dataframe
         new_dataframe = pd.concat([labeled_frame, dataframe.loc[:]]).reset_index(drop=True)
         dataframe = new_dataframe

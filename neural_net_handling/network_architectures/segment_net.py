@@ -6,7 +6,7 @@ class SegmentDetNet(nn.Module):
     def __init__(self):
         super().__init__()
         self.model = torchvision.models.resnet18(pretrained=True)
-        self.model.fc = nn.Linear(256, 1)
+        self.model.fc = nn.Linear(512, 96)
 
         for param in self.model.parameters():
             param.requires_grad = False
