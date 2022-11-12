@@ -3,7 +3,7 @@ numpy>=1.19.*
 tqdm==4.63.*
 imageio==2.9.*
 imageio_ffmpeg==0.4.3
-pillow>=9.0.1
+pillow>=8.4.0
 torch~=1.12.1
 torchvision~=0.13.1
 opencv-python~=4.6.0.66
