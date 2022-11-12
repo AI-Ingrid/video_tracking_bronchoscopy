@@ -1,4 +1,4 @@
-matplotlib>=3.4.0
+matplotlib>=3.3.4
 numpy>=1.19.*
 tqdm==4.63.*
 imageio==2.9.*
