@@ -1,5 +1,6 @@
 from torchvision.transforms import Normalize
 
+import parameters
 from parameters import *
 import torch
 from data_handling.dataset_handler import *
@@ -17,23 +18,22 @@ def main():
     #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
 
     # Create dataset
-    bronchoscopy_dataset = BronchoscopyDataset(
+    bronchus_dataset = BronchusDataset(
         csv_file=root_directory_path + f"/{dataset_type}_{network_type}_dataset_path.csv",
         root_directory=root_directory_path,
+        num_bronchus_generations=num_bronchus_generations,
         transform=transforms.Compose([
-            transforms.ToTensor(),
-            #Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.ToTensor()
         ]))
 
-    print("Data: ", bronchoscopy_dataset)
-    print("Data index ", bronchoscopy_dataset[0])
-
     # Load dataset
-    dataloaders = bronchoscopy_dataset.get_dataloaders(batch_size, test_split, validation_split)
+    dataloaders = bronchus_dataset.get_dataloaders(batch_size, test_split, validation_split)
 
     # Create a CNN model
     if network_type == "segment_det_net":
-        neural_net = SegmentDetNet()
+        num_classes = bronchus_dataset.get_num_classes()
+        print("NUM CLASSES: ", num_classes)
+        neural_net = SegmentDetNet(num_classes)
 
     elif network_type == "direction_det_net":
         neural_net = DirectionDetNet()

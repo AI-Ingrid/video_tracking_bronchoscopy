@@ -1,19 +1,19 @@
 import torch
 from data_handling.frames_handler import *
 from torch.utils.data import Dataset, sampler
-from skimage import io, transform
+from skimage import io
 
 
-class BronchoscopyDataset(Dataset):
+class BronchusDataset(Dataset):
     """ The dataset class """
-    def __init__(self, csv_file, root_directory, transform=None):
+    def __init__(self, csv_file, root_directory, num_bronchus_generations, transform=None):
         # CSV file containing 2 columns: frame_path and label
         self.labeled_frames = pd.read_csv(csv_file, index_col=False)
         self.root_directory = root_directory
+        self.num_generations = num_bronchus_generations
         self.transform = transform
-        # TODO: Add them
-        self.class_to_index = {}
-        self.classes = []
+        self.label_mapping = self.get_label_mapping()  # Mapping from original labels to new labels
+        self.keys = list(self.label_mapping.keys())
 
     def __len__(self):
         return len(self.labeled_frames)
@@ -27,18 +27,21 @@ class BronchoscopyDataset(Dataset):
         # Fetch columns from the csv for the given index
         frame_name = os.path.join(self.root_directory, self.labeled_frames.iloc[index, 0])
 
-        # Normalize the frame
-        #frame = io.imread(frame_name)/255.0
+        # Frame
         frame = io.imread(frame_name)
-        label = self.labeled_frames.iloc[index, 1]
-
-        # Create a sample dictionary containing the column values
-        #sample = {'Frame': frame, 'Label': label}
-
         if self.transform:
             frame = self.transform(frame)
 
-        return frame, label
+        # Get original label
+        original_label = self.labeled_frames.iloc[index, 1]
+
+        # Change label by using the given mapping system
+        if original_label in self.keys:
+            new_label = self.label_mapping[original_label]
+        else:
+            new_label = 0
+
+        return frame, new_label
 
     def get_dataloaders(self, batch_size, test_split, validation_split):
         """ Splits the data into train, test and validation data """
@@ -67,91 +70,85 @@ class BronchoscopyDataset(Dataset):
 
         return train_loader, validation_loader, test_loader
 
-""" Below: Classes for transforming the objects from the dataset class
-such as rescaling or random cropping of the frames or converting the frames into
-torch images """
+    def get_label_mapping(self):
+        """
+        Return a dictionary {"old originally label": "new label reducing class numbers"}
+        """
 
+        if self.num_generations == 1:
+            label_mapping = {
+                1: 1,  # Trachea
+                5: 2,  # Right Main Bronchus
+                4: 3,  # Left Main Bronchus
+            }
 
-class Rescale(object):
-    """Rescale the image in a sample to a given size.
+        elif self.num_generations == 2:
+            label_mapping = {
+                1:  1,   # Trachea
+                5:  2,   # Right Main Bronchus
+                4:  3,   # Left Main Bronchus
+                14: 4,  # Right/Left Upper Lobe Bronchus
+                15: 5,  # Right Truncus Intermedicus
+                12: 6,  # Left Lower Lobe Bronchus
+                13: 7   # Left Upper Lobe Bronchus
+            }
 
-    Args:
-        output_size (tuple or int): Desired output size. If tuple, output is
-            matched to output_size. If int, smaller of image edges is matched
-            to output_size keeping aspect ratio the same.
-    """
+        elif self.num_generations == 3:
+            label_mapping = {
+                1:   1,   # Trachea
+                5:   2,   # Right Main Bronchus
+                4:   3,   # Left Main Bronchus
+                14:  4,   # Right/Left Upper Lobe Bronchus
+                15:  5,   # Right Truncus Intermedicus
+                12:  6,   # Left Lower Lobe Bronchus
+                13:  7,   # Left Upper Lobe Bronchus
+                49:  8,   # Right B1
+                50:  9,   # Right B2
+                48:  10,  # Right B3
+                2:   11,  # Right Middle Lobe Bronchus (parent for B4 og B5)
+                3:   12,  # Right lower Lobe Bronchus (possible called right lower lobe bronchus (1))
+                11:  13,  # Right Lower Lobe Bronchus (2)
+                39:  14,  # Left Main Bronchus
+                38:  15,  # Left B6
+                42:  16,  # Left Upper Division Bronchus
+                43:  17,  # Left Lingular Bronchus (or singular?)
+            }
 
-    def __init__(self, output_size):
-        assert isinstance(output_size, (int, tuple))
-        self.output_size = output_size
+        elif self.num_generations == 4:
+            label_mapping = {
+                1: 1,  # Trachea
+                5: 2,  # Right Main Bronchus
+                4: 3,  # Left Main Bronchus
+                14: 4,  # Right/Left Upper Lobe Bronchus
+                15: 5,  # Right Truncus Intermedicus
+                12: 6,  # Left Lower Lobe Bronchus
+                13: 7,  # Left Upper Lobe Bronchus
+                49: 8,  # Right B1
+                50: 9,  # Right B2
+                48: 10,  # Right B3
+                2: 11,  # Right Middle Lobe Bronchus (parent for B4 og B5)
+                3: 12,  # Right lower Lobe Bronchus (possible called right lower lobe bronchus (1))
+                11: 13,  # Right Lower Lobe Bronchus (2)
+                39: 14,  # Left Main Bronchus
+                38: 15,  # Left B6
+                42: 16,  # Left Upper Division Bronchus
+                43: 17,  # Left Lingular Bronchus (or singular?)
+                7:  18,  # Right B4
+                6:  19,  # Right B5
+                91: 20,  # Left B1+B2
+                90: 21,  # Left B3
+                40: 22,  # Left B4
+                41: 23,  # Left B5
+                82: 24,  # Left B8
+                37: 25,  # Left B9
+                36: 26,  # Left B10
+            }
 
-    def __call__(self, sample):
-        frame, label = sample['Frame'], sample['Label']
-
-        h, w = frame.shape[:2]
-        if isinstance(self.output_size, int):
-            if h > w:
-                new_h, new_w = self.output_size * h / w, self.output_size
-            else:
-                new_h, new_w = self.output_size, self.output_size * w / h
         else:
-            new_h, new_w = self.output_size
+            label_mapping = None
+            print("Did not find the number of bronchus generations")
 
-        new_h, new_w = int(new_h), int(new_w)
+        return label_mapping
 
-        frame = transform.resize(frame, (new_h, new_w))
-
-        return {'Frame': frame, 'Label': label}
-
-
-class RandomCrop(object):
-    """Crop randomly the image in a sample.
-
-    Args:
-        output_size (tuple or int): Desired output size. If int, square crop
-            is made.
-    """
-
-    def __init__(self, output_size):
-        assert isinstance(output_size, (int, tuple))
-        if isinstance(output_size, int):
-            self.output_size = (output_size, output_size)
-        else:
-            assert len(output_size) == 2
-            self.output_size = output_size
-
-    def __call__(self, sample):
-        frame, label = sample['Frame'], sample['Label']
-
-        h, w = frame.shape[:2]
-        new_h, new_w = self.output_size
-
-        top = np.random.randint(0, h - new_h)
-        left = np.random.randint(0, w - new_w)
-
-        frame = frame[top: top + new_h,
-                      left: left + new_w]
-
-        return {'Frame': frame, 'Label': label}
-
-
-class ToTensor(object):
-    """Convert ndarrays in sample to Tensors."""
-
-    def __call__(self, frame):
-        #frame, label = sample['Frame'], sample['Label']
-
-        # swap color axis because
-        # numpy image: H x W x C
-        # torch image: C x H x W
-        frame = frame.transpose((2, 0, 1))
-        return torch.from_numpy(frame)
-
-
-
-
-
-
-
-
-
+    def get_num_classes(self):
+        return len(list(self.label_mapping.keys()))+1  # Num defined classes + one class for all undefined classes

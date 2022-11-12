@@ -15,9 +15,10 @@ frames_path = root_directory_path + f"/{dataset_type}_frames"
 label_file_path = root_directory_path + f"/{dataset_type}_branches_positions_numbers.txt"
 names_file_path = root_directory_path + f"/{dataset_type}_branch_number_name.txt"
 
+
 # CNN
 network_type = "segment_det_net"  # {"direction_det_net", "segment_det_net"}
-# output_shapes = [256, 128, 64, 32, 16, 8, 4, 1]
+num_bronchus_generations = 1  # {1, 2, 3, 4}
 epochs = 5
 batch_size = 32
 learning_rate = 1e-2

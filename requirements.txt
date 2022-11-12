@@ -6,3 +6,7 @@ imageio_ffmpeg==0.4.3
 pillow>=9.0.1
 torch~=1.12.1
 torchvision~=0.13.1
+opencv-python~=4.6.0.66
+pandas~=1.4.4
+scipy~=1.9.1
+scikit-image~=0.19.2

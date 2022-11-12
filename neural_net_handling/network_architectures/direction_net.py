@@ -5,7 +5,7 @@ from torch import nn
 class DirectionDetNet(nn.Module):
     def __init__(self):
         super().__init__()
-        self.model = torchvision.models.resnet18(pretrained=True)
+        self.model = torchvision.models.resnet18(progress=True)
         # Output 2 meaning up or down
         self.model.fc = nn.Linear(256, 2)
 
