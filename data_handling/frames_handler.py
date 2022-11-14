@@ -225,9 +225,6 @@ def match_frames_with_positions_and_timestamps(positions, path_to_timestamp_file
         best_match_position_tuple = (best_match_position[0], best_match_position[1], best_match_position[2])
         label = positions_and_labels[best_match_position_tuple]
 
-        # Get 1d array representing the frame from the frame path
-        frame = cv2.imread(frame).flatten()
-
         # Add the frame and label to dataframe
         labeled_frame = pd.DataFrame({
             'Frame': [frame],
@@ -266,29 +263,32 @@ def add_labels(network_type, path_to_timestamp_file, path_to_position_file, fram
     # Sort the list of frames from the video
     frames.sort(key=natural_keys)
     if network_type == "direction_det_net":
-        # TODO: Maybe 5 frames is to little?
-        # TODO put this in a help function?
-        for index, frame in enumerate(frames[5:]):
+
+        for index, frame in enumerate(frames[4:]):
+            # Only save path in directory, not entire path
             # Add a new forward row
             new_forward_row = pd.DataFrame({
-                "frame 1": frames[index-4],
-                "frame 2": frames[index-3],
-                "frame 3": frames[index-2],
-                "frame 4": frames[index-1],
-                "frame 5": frames[index],
-                "label": 1  # Forward,
-            })
+                "Frame_1": [frames[index-4]],
+                "Frame_2": [frames[index-3]],
+                "Frame_3": [frames[index-2]],
+                "Frame_4": [frames[index-1]],
+                "Frame_5": [frames[index]],
+                "Label": 1  # Forward,
+            }).reset_index(drop=True)
+            # Add a new backward row
             new_backward_row = pd.DataFrame({
-                "frame 1": frames[index],
-                "frame 2": frames[index-1],
-                "frame 3": frames[index-2],
-                "frame 4": frames[index-3],
-                "frame 5": frames[index-4],
-                "label": 0  # Backward,
-            })
-            dataframe = dataframe.append(new_forward_row, ignore_index=True)
-            dataframe = dataframe.append(new_backward_row, ignore_index=True)
-            print(dataframe.head())
+                "Frame_1": [frames[index]],
+                "Frame_2": [frames[index-1]],
+                "Frame_3": [frames[index-2]],
+                "Frame_4": [frames[index-3]],
+                "Frame_5": [frames[index-4]],
+                "Label": 0  # Backward,
+            }).reset_index(drop=True)
+
+            # Store labeled sequence of frames in dataframe
+            temp_new_dataframe = pd.concat([new_forward_row, dataframe.loc[:]]).reset_index(drop=True)
+            new_dataframe = pd.concat([new_backward_row, temp_new_dataframe.loc[:]]).reset_index(drop=True)
+            dataframe = new_dataframe
 
     elif network_type == "segment_det_net":
         # Get all positions in current video
@@ -319,7 +319,7 @@ def crop_scale_and_label_the_frames(dataset_type, network_type, path_to_patients
         y_end = 1015
 
         if network_type == "direction_det_net":
-            dataframe = pd.DataFrame(columns=["Frame 1", "Frame 2", "Frame 3", "Frame 4", "Frame 5", "Label"])
+            dataframe = pd.DataFrame(columns=["Frame_1", "Frame_2", "Frame_3", "Frame_4", "Frame_5", "Label"])
 
         elif network_type == "segment_det_net":
             dataframe = pd.DataFrame(columns=["Frame", "Label"])
@@ -379,7 +379,7 @@ def crop_scale_and_label_the_frames(dataset_type, network_type, path_to_patients
                                     path_to_position_file = path_to_frames + "/" + file
 
                         # Add labels to the frames in current video
-                        dataframe = add_labels(network_type, path_to_timestamp_file, path_to_position_file, frame_list, dataframe)
+                        dataframe = add_labels(parameters.network_type, path_to_timestamp_file, path_to_position_file, frame_list, dataframe)
                         print("Converting dataframe to csv file..")
                         # Convert dataframe into CSV file in order to store the dataset as a file
                         dataset_path = parameters.root_directory_path + f"/{parameters.dataset_type}_{parameters.network_type}_dataset.csv"

@@ -2,69 +2,111 @@ import torch
 from data_handling.frames_handler import *
 from torch.utils.data import Dataset, sampler
 from skimage import io
+import random
 
 
 class BronchusDataset(Dataset):
     """ The dataset class """
-    def __init__(self, csv_file, root_directory, num_bronchus_generations, transform=None):
+    def __init__(self, csv_file, root_directory, network_type, num_bronchus_generations=None, transform=None):
         # CSV file containing 2 columns: frame_path and label
         self.labeled_frames = pd.read_csv(csv_file, index_col=False)
         self.root_directory = root_directory
+        self.network_type = network_type
         self.num_generations = num_bronchus_generations
         self.transform = transform
-        self.label_mapping = self.get_label_mapping()  # Mapping from original labels to new labels
-        self.keys = list(self.label_mapping.keys())
+
+        if self.network_type == 'segment_det_net':
+            self.label_mapping = self.get_label_mapping()  # Mapping from original labels to new labels
+            self.keys = list(self.label_mapping.keys())
 
     def __len__(self):
         return len(self.labeled_frames)
 
     def __getitem__(self, index):
-        """ Enables the fetching of values with dataset[index] in the dataset
-         for both columns """
+        """
+        Enables the fetching of values with dataset[index] in the dataset
+        """
         if torch.is_tensor(index):
             index = index.tolist()
 
-        # Fetch columns from the csv for the given index
-        frame_name = os.path.join(self.root_directory, self.labeled_frames.iloc[index, 0])
+        if self.network_type == 'segment_det_net':
+            # Fetch columns from the csv for the given index
+            frame_name = self.labeled_frames.iloc[index, 0]
 
-        # Frame
-        frame = io.imread(frame_name)
-        if self.transform:
-            frame = self.transform(frame)
+            # Frame
+            frame = io.imread(frame_name)
+            if self.transform:
+                frame = self.transform(frame)
 
-        # Get original label
-        original_label = self.labeled_frames.iloc[index, 1]
+            # Get original label
+            original_label = self.labeled_frames.iloc[index, 1]
 
-        # Change label by using the given mapping system
-        if original_label in self.keys:
-            new_label = self.label_mapping[original_label]
+            # Change label by using the given mapping system
+            if original_label in self.keys:
+                new_label = self.label_mapping[original_label]
+            else:
+                new_label = 0
+
+            return frame, new_label
+
         else:
-            new_label = 0
+            # Direction detection network
+            # Fetch columns from the csv for the given index
+            frame_name_1 = self.labeled_frames.iloc[index, 0]
+            frame_name_2 = self.labeled_frames.iloc[index, 1]
+            frame_name_3 = self.labeled_frames.iloc[index, 2]
+            frame_name_4 = self.labeled_frames.iloc[index, 3]
+            frame_name_5 = self.labeled_frames.iloc[index, 4]
 
-        return frame, new_label
+            # Frame
+            frame_1 = io.imread(frame_name_1)
+            frame_2 = io.imread(frame_name_2)
+            frame_3 = io.imread(frame_name_3)
+            frame_4 = io.imread(frame_name_4)
+            frame_5 = io.imread(frame_name_5)
+
+            if self.transform:
+                frame_1 = self.transform(frame_1)
+                frame_2 = self.transform(frame_2)
+                frame_3 = self.transform(frame_3)
+                frame_4 = self.transform(frame_4)
+                frame_5 = self.transform(frame_5)
+
+            frames = torch.concat([frame_1, frame_2, frame_3, frame_4, frame_5])
+
+            # Get label
+            label = self.labeled_frames.iloc[index, 5]
+
+            # Frames tensor: [5, 3, 256, 256] or [15, 256, 256]
+            return frames, label
 
     def get_dataloaders(self, batch_size, test_split, validation_split):
         """ Splits the data into train, test and validation data """
-        # TODO: Se på sklearn.model_selection sin train_test_split
         indices = list(range(len(self)))
+        # Shuffle the dataset
+        random.shuffle(indices)
 
         # Test
         test_split_index = int(np.floor(test_split * len(self)))
-        test_indices = np.random.choice(indices, size=test_split_index, replace=False)
+        test_indices = indices[:test_split_index]
+        #test_indices = np.random.choice(indices, size=test_split_index, replace=False)
         test_sampler = sampler.SubsetRandomSampler(test_indices)
         test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=test_sampler)
 
         # Train (temporary)
-        temp_train_indices = list(set(indices) - set(test_indices))
+        #temp_train_indices = list(set(indices) - set(test_indices))
+        temp_train_indices = indices[test_split_index:]
 
         # Validation
         validation_split_index = int(np.floor(validation_split * len(temp_train_indices)))
-        validation_indices = np.random.choice(temp_train_indices, size=validation_split_index, replace=False)
+        validation_indices = temp_train_indices[:validation_split_index]
+        #validation_indices = np.random.choice(temp_train_indices, size=validation_split_index, replace=False)
         validation_sampler = sampler.SubsetRandomSampler(validation_indices)
         validation_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=validation_sampler)
 
         # Train
-        train_indices = list(set(temp_train_indices) - set(validation_indices))
+        #train_indices = list(set(temp_train_indices) - set(validation_indices))
+        train_indices = temp_train_indices[validation_split_index:]
         train_sampler = sampler.SubsetRandomSampler(train_indices)
         train_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=train_sampler, drop_last=True)
 

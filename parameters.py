@@ -9,7 +9,7 @@ frame_dimension = (256, 256)  # Dimension of the cropped frames that will be sen
 fps = 10
 
 # Data paths
-root_directory_path = f"/Users/ikolderu/PycharmProjects/video_tracking_bronchoscopy/data_handling/data/{dataset_type}"
+root_directory_path = f"data_handling/data/{dataset_type}"
 videos_path = root_directory_path + f"/{dataset_type}_videos/"
 frames_path = root_directory_path + f"/{dataset_type}_frames"
 label_file_path = root_directory_path + f"/{dataset_type}_branches_positions_numbers.txt"
@@ -23,6 +23,3 @@ epochs = 5
 batch_size = 32
 learning_rate = 1e-2
 early_stop_count = 5
-
-# Visualization
-

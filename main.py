@@ -1,8 +1,4 @@
-from torchvision.transforms import Normalize
-
-import parameters
 from parameters import *
-import torch
 from data_handling.dataset_handler import *
 from torchvision import transforms, datasets
 
@@ -15,12 +11,13 @@ def main():
     """ The function running the entire pipeline of the project """
     # Create frames, label them and preprocess them
     #convert_video_to_frames(videos_path, frames_path)
-    #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
+    crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
 
     # Create dataset
     bronchus_dataset = BronchusDataset(
-        csv_file=root_directory_path + f"/{dataset_type}_{network_type}_dataset_path.csv",
+        csv_file=root_directory_path + f"/{dataset_type}_{network_type}_dataset.csv",
         root_directory=root_directory_path,
+        network_type=network_type,
         num_bronchus_generations=num_bronchus_generations,
         transform=transforms.Compose([
             transforms.ToTensor()
@@ -32,7 +29,6 @@ def main():
     # Create a CNN model
     if network_type == "segment_det_net":
         num_classes = bronchus_dataset.get_num_classes()
-        print("NUM CLASSES: ", num_classes)
         neural_net = SegmentDetNet(num_classes)
 
     elif network_type == "direction_det_net":
