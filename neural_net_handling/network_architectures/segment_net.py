@@ -7,6 +7,7 @@ class SegmentDetNet(nn.Module):
         super().__init__()
         self.model = torchvision.models.resnet18(pretrained=True, progress=True)
         self.model.fc = nn.Linear(512, num_classes)
+        self.last_layer = nn.Softmax()
 
         for param in self.model.parameters():
             param.requires_grad = False
@@ -16,4 +17,6 @@ class SegmentDetNet(nn.Module):
             param.requires_grad = True
 
     def forward(self, x):
-        return self.model(x)
+        x = self.model(x)
+        x = self.last_layer(x)
+        return x

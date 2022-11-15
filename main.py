@@ -14,6 +14,7 @@ def main():
     #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
 
     # Create dataset
+    print("Create dataset class ..")
     bronchus_dataset = BronchusDataset(
         csv_file=root_directory_path + f"/{dataset_type}_{network_type}_dataset.csv",
         root_directory=root_directory_path,
@@ -24,14 +25,17 @@ def main():
         ]))
 
     # Load dataset
+    print("Load dataset ..")
     dataloaders = bronchus_dataset.get_dataloaders(batch_size, test_split, validation_split)
 
     # Create a CNN model
     if network_type == "segment_det_net":
+        print("Creating the SegmentDetNet..")
         num_classes = bronchus_dataset.get_num_classes()
         neural_net = SegmentDetNet(num_classes)
 
     elif network_type == "direction_det_net":
+        print("Creating the DirectionDetNet ..")
         neural_net = DirectionDetNet()
 
     else:
@@ -39,6 +43,7 @@ def main():
         neural_net = None
 
     # Train the CNN model
+    print("Creating a trainer ..")
     trainer = Trainer(
         batch_size,
         learning_rate,
@@ -47,6 +52,7 @@ def main():
         neural_net,
         dataloaders
     )
+    print("Training ..")
     trainer.train()
 
     # Visualize training
