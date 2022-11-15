@@ -87,8 +87,8 @@ class Trainer:
         # Load our dataset
         self.dataloader_train, self.dataloader_val, self.dataloader_test = dataloaders
 
-        # Validate our model everytime we pass through 50% of the dataset
-        self.num_steps_per_val = len(self.dataloader_train) // 2
+        # Validate our model everytime we pass through 25% of the dataset
+        self.num_steps_per_val = len(self.dataloader_train) // 4
         self.global_step = 0
         self.start_time = time.time()
 
@@ -189,9 +189,11 @@ class Trainer:
         for epoch in range(self.epochs):
             self.epoch = epoch
             print("Epoch: ", epoch)
-
+            batch_num = 0
             # Perform a full pass through all the training samples
             for X_batch, Y_batch in self.dataloader_train:
+                print("Batch number: ", batch_num)
+                batch_num += 1
                 loss = self.train_step(X_batch, Y_batch)
                 self.train_history["loss"][self.global_step] = loss
                 self.global_step += 1
