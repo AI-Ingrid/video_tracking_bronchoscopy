@@ -11,9 +11,10 @@ class DirectionDetNet(nn.Module):
             kernel_size=3,
             stride=1,
             padding=1)
-        self.model = torchvision.models.resnet18(progress=True)
+        self.model = torchvision.models.resnet18(pretrained=True, progress=True)
         # Output 2 meaning forward or backward in the airways
         self.model.fc = nn.Linear(512, 2)
+        # Softmax (ikke nødvendig for binær output) ? Sigmoid
 
         for param in self.model.parameters():
             param.requires_grad = False

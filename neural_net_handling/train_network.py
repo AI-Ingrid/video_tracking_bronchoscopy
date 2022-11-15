@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import typing
 import time
@@ -187,6 +188,7 @@ class Trainer:
 
         for epoch in range(self.epochs):
             self.epoch = epoch
+
             # Perform a full pass through all the training samples
             for X_batch, Y_batch in self.dataloader_train:
                 loss = self.train_step(X_batch, Y_batch)
