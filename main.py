@@ -50,7 +50,7 @@ def main():
     trainer.train()
 
     # Visualize training
-    create_plots(trainer, "Training")
+    create_plots(trainer, "SegmentDet_4_gens")
 
     train, validation, test = dataloaders
 
