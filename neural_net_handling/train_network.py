@@ -189,6 +189,11 @@ class Trainer:
         for epoch in range(self.epochs):
             self.epoch = epoch
             print("Epoch: ", epoch)
+            print("Length: ", len(self.dataloader_train))
+            print("Validation at: ", len(self.dataloader_train)//4)
+            print("Validation at: ", len(self.dataloader_train)//4 * 2)
+            print("Validation at: ", len(self.dataloader_train)//4 * 3)
+            print("Validation at: ", len(self.dataloader_train)//4 * 4)
             batch_num = 0
             # Perform a full pass through all the training samples
             for X_batch, Y_batch in self.dataloader_train:
