@@ -226,7 +226,6 @@ class Trainer:
 
         utils.save_checkpoint(state_dict, filepath, is_best_model())
 
-
 def create_plots(trainer: Trainer, name: str):
     plot_path = pathlib.Path("plots")
     plot_path.mkdir(exist_ok=True)

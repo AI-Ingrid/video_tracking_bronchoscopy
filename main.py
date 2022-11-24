@@ -69,7 +69,8 @@ def main():
     test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
     # ---------------- TESTING ----------------------------------------------
     # Load neural net model
-    #model = torch.load(path_to_trained_models+"")
+    model = torch.load(path_to_trained_models)
+    model.eval()
     # GO through random images from the test data
     #for test_image in test:
         #print("test image: ", test_image)
