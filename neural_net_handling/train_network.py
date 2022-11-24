@@ -163,8 +163,8 @@ class Trainer:
 
         # Perform the forward pass
         predictions = self.model(X_batch)
-        print("Predictions: ", predictions)
-        print("Y batch: ", Y_batch)
+        #print("Predictions: ", predictions)
+        #print("Y batch: ", Y_batch)
 
         # Compute the cross entropy loss for the batch
         loss = self.loss_criterion(predictions, Y_batch)
