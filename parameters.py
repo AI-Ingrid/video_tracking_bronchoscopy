@@ -18,7 +18,7 @@ names_file_path = root_directory_path + f"/{dataset_type}_branch_number_name.txt
 
 # CNN
 network_type = "segment_det_net"  # {"direction_det_net", "segment_det_net"}
-num_bronchus_generations = 4  # {1, 2, 3, 4}
+num_bronchus_generations = 3  # {1, 2, 3, 4}
 epochs = 5
 batch_size = 32
 learning_rate = 5e-4

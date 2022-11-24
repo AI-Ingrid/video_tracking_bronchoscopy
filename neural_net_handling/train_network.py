@@ -163,6 +163,8 @@ class Trainer:
 
         # Perform the forward pass
         predictions = self.model(X_batch)
+        print("Predictions: ", predictions)
+        print("Y batch: ", Y_batch)
 
         # Compute the cross entropy loss for the batch
         loss = self.loss_criterion(predictions, Y_batch)
@@ -238,6 +240,7 @@ def create_plots(trainer: Trainer, name: str):
     plt.subplot(1, 2, 2)
     plt.title("Accuracy")
     utils.plot_loss(trainer.validation_history["accuracy"], label="Validation Accuracy")
+    utils.plot_loss(trainer.train_history["accuracy"], label="Training Accuracy")
     plt.legend()
     plt.savefig(plot_path.joinpath(f"{name}.png"))
     plt.show()
