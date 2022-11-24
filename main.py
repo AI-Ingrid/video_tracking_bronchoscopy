@@ -9,6 +9,8 @@ from neural_net_handling.train_network import Trainer, create_plots, compute_los
 
 def main():
     """ The function running the entire pipeline of the project """
+
+    # ---------------- TRAINNG ----------------------------------------------
     # Create frames, label them and preprocess them
     #convert_video_to_frames(videos_path, frames_path)
     #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
@@ -49,6 +51,9 @@ def main():
     )
     trainer.train()
 
+    # Save model
+    torch.save(neural_net.state_dict(), path_to_trained_models)
+
     # Visualize training
     create_plots(trainer, "SegmentDet_4_gens")
 
@@ -61,6 +66,16 @@ def main():
     val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, torch.nn.CrossEntropyLoss())
     print("---- TEST ----")
     test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
+    # ---------------- TESTING ----------------------------------------------
+    # Load neural net model
+    #model = torch.load(path_to_trained_models+"")
+    # GO through random images from the test data
+    #for test_image in test:
+        #print("test image: ", test_image)
+
+    # pass random image into trained network
+    # perform forward
+    # plot image with prediction label and the true label
 
 
 if __name__ == "__main__":
