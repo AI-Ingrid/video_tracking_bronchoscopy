@@ -52,7 +52,8 @@ def main():
     trainer.train()
 
     # Save model
-    torch.save(neural_net.state_dict(), path_to_trained_models)
+    model_scripted = torch.jit.script(neural_net)
+    model_scripted.save(path_to_trained_models)
 
     # Visualize training
     create_plots(trainer, "SegmentDet_4_gens")

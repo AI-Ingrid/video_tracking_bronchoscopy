@@ -18,8 +18,8 @@ names_file_path = root_directory_path + f"/{dataset_type}_branch_number_name.txt
 
 # CNN
 network_type = "segment_det_net"  # {"direction_det_net", "segment_det_net"}
-path_to_trained_models = "neural_net_handling/trained_models/"
 num_bronchus_generations = 4  # {1, 2, 3, 4}
+path_to_trained_models = f"neural_net_handling/trained_models/{network_type}_{num_bronchus_generations}_gens.pt"
 epochs = 1
 batch_size = 16
 learning_rate = 5e-4
