@@ -88,7 +88,7 @@ class Trainer:
         self.dataloader_train, self.dataloader_val, self.dataloader_test = dataloaders
 
         # Validate our model everytime we pass through 25% of the dataset
-        self.num_steps_per_val = len(self.dataloader_train) // 4
+        self.num_steps_per_val = len(self.dataloader_train) // 5
         self.global_step = 0
         self.start_time = time.time()
 
@@ -110,7 +110,7 @@ class Trainer:
             Train, validation and test.
         """
         self.model.eval()
-        validation_loss, validation_acc, train_acc = compute_loss_and_accuracy(self.dataloader_val, self.model, self.loss_criterion)
+        validation_loss, validation_acc = compute_loss_and_accuracy(self.dataloader_val, self.model, self.loss_criterion)
         self.validation_history["loss"][self.global_step] = validation_loss
         self.validation_history["accuracy"][self.global_step] = validation_acc
 
