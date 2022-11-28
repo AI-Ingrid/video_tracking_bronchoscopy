@@ -11,7 +11,7 @@ def main():
     """ The function running the entire pipeline of the project """
 
     # ---------------- TRAINNG ----------------------------------------------
-    random.seed()
+    random.seed(1)
     # Create frames, label them and preprocess them
     #convert_video_to_frames(videos_path, frames_path)
     #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
@@ -54,8 +54,8 @@ def main():
     # Load neural net model
     trainer.load_best_model()
     train, validation, test = dataloaders
-    print(trainer.train_history["accuracy"].keys())
-    print(trainer.train_history["accuracy"].values())
+
+    """
     # Test CNN model
     print("---- TRAINING ----")
     train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
@@ -64,28 +64,9 @@ def main():
     print("---- TEST ----")
     test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
     # ---------------- TESTING ----------------------------------------------
-
-    """ 
-    # Test CNN model
-    print("---- TRAINING ----")
-    train_loss, train_acc = compute_loss_and_accuracy(train, trainer.model, torch.nn.CrossEntropyLoss())
-    print("---- VALIDATION ----")
-    val_loss, val_acc = compute_loss_and_accuracy(validation, trainer.model, torch.nn.CrossEntropyLoss())
-    print("---- TEST ----")
-    test_loss, test_acc = compute_loss_and_accuracy(test, trainer.model, torch.nn.CrossEntropyLoss())
-    """
+     """
     # Visualize training
-    print(trainer.train_history["accuracy"].keys())
-    print(trainer.train_history["accuracy"].values())
-    create_plots(trainer, "bs_16_gen_4")
-
-    # GO through random images from the test data
-    #for test_image in test:
-        #print("test image: ", test_image)
-
-    # pass random image into trained network
-    # perform forward
-    # plot image with prediction label and the true label
+    create_plots(trainer, "bs_16_gen_4_second_try")
 
 
 if __name__ == "__main__":
