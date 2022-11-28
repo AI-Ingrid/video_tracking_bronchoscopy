@@ -21,7 +21,7 @@ network_type = "segment_det_net"  # {"direction_det_net", "segment_det_net"}
 num_bronchus_generations = 4  # {1, 2, 3, 4}
 path_to_trained_models = f"neural_net_handling/trained_models/{network_type}_{num_bronchus_generations}_gens.pt"
 epochs = 1
-batch_size = 16
+batch_size = 8
 learning_rate = 5e-4
 early_stop_count = 5
 

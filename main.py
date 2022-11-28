@@ -11,6 +11,7 @@ def main():
     """ The function running the entire pipeline of the project """
 
     # ---------------- TRAINNG ----------------------------------------------
+    random.seed()
     # Create frames, label them and preprocess them
     #convert_video_to_frames(videos_path, frames_path)
     #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
