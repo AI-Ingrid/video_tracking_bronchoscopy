@@ -91,7 +91,7 @@ class BronchusDataset(Dataset):
         test_indices = indices[:test_split_index]
         #test_indices = np.random.choice(indices, size=test_split_index, replace=False)
         test_sampler = sampler.SubsetRandomSampler(test_indices)
-        test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=test_sampler)
+        test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=test_sampler, drop_last=True)
 
         # Train (temporary)
         #temp_train_indices = list(set(indices) - set(test_indices))
@@ -102,7 +102,7 @@ class BronchusDataset(Dataset):
         validation_indices = temp_train_indices[:validation_split_index]
         #validation_indices = np.random.choice(temp_train_indices, size=validation_split_index, replace=False)
         validation_sampler = sampler.SubsetRandomSampler(validation_indices)
-        validation_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=validation_sampler)
+        validation_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=validation_sampler, drop_last=True)
 
         # Train
         #train_indices = list(set(temp_train_indices) - set(validation_indices))
