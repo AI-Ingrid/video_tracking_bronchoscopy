@@ -110,11 +110,12 @@ class Trainer:
             Train, validation and test.
         """
         self.model.eval()
-        validation_loss, validation_acc = compute_loss_and_accuracy(
-            self.dataloader_val, self.model, self.loss_criterion
-        )
+        validation_loss, validation_acc, train_acc = compute_loss_and_accuracy(self.dataloader_val, self.model, self.loss_criterion)
         self.validation_history["loss"][self.global_step] = validation_loss
         self.validation_history["accuracy"][self.global_step] = validation_acc
+
+        training_loss, training_acc = compute_loss_and_accuracy(self.dataloader_train, self.model, self.loss_criterion)
+        self.train_history["accuracy"][self.global_step] = training_acc
         used_time = time.time() - self.start_time
         print(
             f"Epoch: {self.epoch:>1}",
@@ -225,6 +226,14 @@ class Trainer:
         filepath = self.checkpoint_dir.joinpath(f"{self.global_step}.ckpt")
 
         utils.save_checkpoint(state_dict, filepath, is_best_model())
+
+    def load_best_model(self):
+        state_dict = utils.load_best_checkpoint(self.checkpoint_dir)
+        if state_dict is None:
+            print(
+                f"Could not load best checkpoint. Did not find under: {self.checkpoint_dir}")
+            return
+        self.model.load_state_dict(state_dict)
 
 def create_plots(trainer: Trainer, name: str):
     plot_path = pathlib.Path("plots")

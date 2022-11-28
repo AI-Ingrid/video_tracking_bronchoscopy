@@ -50,17 +50,13 @@ def main():
         neural_net,
         dataloaders
     )
-    trainer.train()
-
-    # Save model
-    model_scripted = torch.jit.script(neural_net)
-    model_scripted.save(path_to_trained_models)
+    #trainer.train()
 
     # Visualize training
-    create_plots(trainer, "SegmentDet_4_gens")
+    #create_plots(trainer, "SegmentDet_4_gens_new")
 
     train, validation, test = dataloaders
-
+    """ 
     # Test CNN model
     print("---- TRAINING ----")
     train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
@@ -68,10 +64,23 @@ def main():
     val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, torch.nn.CrossEntropyLoss())
     print("---- TEST ----")
     test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
+    """
     # ---------------- TESTING ----------------------------------------------
+
     # Load neural net model
-    model = torch.load(path_to_trained_models)
-    model.eval()
+    trainer.load_best_model()
+
+    # Test CNN model
+    print("---- TRAINING ----")
+    train_loss, train_acc = compute_loss_and_accuracy(train, trainer.model, torch.nn.CrossEntropyLoss())
+    print("---- VALIDATION ----")
+    val_loss, val_acc = compute_loss_and_accuracy(validation, trainer.model, torch.nn.CrossEntropyLoss())
+    print("---- TEST ----")
+    test_loss, test_acc = compute_loss_and_accuracy(test, trainer.model, torch.nn.CrossEntropyLoss())
+
+    # Visualize training
+    create_plots(trainer, "Test")
+
     # GO through random images from the test data
     #for test_image in test:
         #print("test image: ", test_image)
