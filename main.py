@@ -55,16 +55,14 @@ def main():
     trainer.load_best_model()
     train, validation, test = dataloaders
 
-    """
     # Test CNN model
     print("---- TRAINING ----")
-    train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
+    train_loss, train_acc = compute_loss_and_accuracy(train, trainer.model, torch.nn.CrossEntropyLoss())
     print("---- VALIDATION ----")
-    val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, torch.nn.CrossEntropyLoss())
+    val_loss, val_acc = compute_loss_and_accuracy(validation, trainer.model, torch.nn.CrossEntropyLoss())
     print("---- TEST ----")
-    test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
+    test_loss, test_acc = compute_loss_and_accuracy(test, trainer.model, torch.nn.CrossEntropyLoss())
     # ---------------- TESTING ----------------------------------------------
-     """
     # Visualize training
     create_plots(trainer, "bs_16_gen_4_second_try")
 

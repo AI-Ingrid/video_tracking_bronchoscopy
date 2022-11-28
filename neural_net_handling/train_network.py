@@ -193,10 +193,6 @@ class Trainer:
             self.epoch = epoch
             print("Epoch: ", epoch)
             print("Length: ", len(self.dataloader_train))
-            print("Validation at: ", len(self.dataloader_train)//4)
-            print("Validation at: ", len(self.dataloader_train)//4 * 2)
-            print("Validation at: ", len(self.dataloader_train)//4 * 3)
-            print("Validation at: ", len(self.dataloader_train)//4 * 4)
             batch_num = 0
             # Perform a full pass through all the training samples
             for X_batch, Y_batch in self.dataloader_train:
@@ -235,6 +231,7 @@ class Trainer:
             return
         self.model.load_state_dict(state_dict)
 
+
 def create_plots(trainer: Trainer, name: str):
     plot_path = pathlib.Path("plots")
     plot_path.mkdir(exist_ok=True)
@@ -248,7 +245,7 @@ def create_plots(trainer: Trainer, name: str):
     plt.subplot(1, 2, 2)
     plt.title("Accuracy")
     utils.plot_loss(trainer.validation_history["accuracy"], label="Validation Accuracy")
-    utils.plot_loss(trainer.train_history["accuracy"], label="Training Accuracy", npoints_to_average=10)
+    utils.plot_loss(trainer.train_history["accuracy"], label="Training Accuracy")
     plt.legend()
     plt.savefig(plot_path.joinpath(f"{name}.png"))
     plt.show()
