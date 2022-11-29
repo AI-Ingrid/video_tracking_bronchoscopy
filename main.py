@@ -83,6 +83,5 @@ def main():
     test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
 
 
-
 if __name__ == "__main__":
     main()

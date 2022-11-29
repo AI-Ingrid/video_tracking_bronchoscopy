@@ -250,7 +250,7 @@ def create_plots(trainer: Trainer, name: str):
     plt.subplot(1, 2, 2)
     plt.title("Accuracy")
     utils.plot_loss(trainer.validation_history["accuracy"], label="Validation Accuracy")
-    utils.plot_loss(trainer.train_history["accuracy"], label="Training Accuracy")
+    utils.plot_loss(trainer.train_history["accuracy"], label="Training Accuracy", npoints_to_average=10)
     plt.legend()
     plt.savefig(plot_path.joinpath(f"{name}.png"))
     plt.show()
