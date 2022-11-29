@@ -50,23 +50,23 @@ def main():
         neural_net,
         dataloaders
     )
-    trainer.train()
+    #trainer.train()
 
     # Visualize training
     create_plots(trainer, "bs_16_gen_4_again_2")
 
     # Load neural net model
-    #trainer.load_best_model()
+    trainer.load_best_model()
 
-    train, validation, test = dataloaders
+    #train, validation, test = dataloaders
 
     # Test CNN model
-    print("---- TRAINING ----")
-    train_loss, train_acc = compute_loss_and_accuracy(train, trainer.model, torch.nn.CrossEntropyLoss())
-    print("---- VALIDATION ----")
-    val_loss, val_acc = compute_loss_and_accuracy(validation, trainer.model, torch.nn.CrossEntropyLoss())
-    print("---- TEST ----")
-    test_loss, test_acc = compute_loss_and_accuracy(test, trainer.model, torch.nn.CrossEntropyLoss())
+    #print("---- TRAINING ----")
+    #train_loss, train_acc = compute_loss_and_accuracy(train, trainer.model, torch.nn.CrossEntropyLoss())
+    #print("---- VALIDATION ----")
+    #val_loss, val_acc = compute_loss_and_accuracy(validation, trainer.model, torch.nn.CrossEntropyLoss())
+    #print("---- TEST ----")
+    #test_loss, test_acc = compute_loss_and_accuracy(test, trainer.model, torch.nn.CrossEntropyLoss())
     # ---------------- TESTING ----------------------------------------------
 
 
