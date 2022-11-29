@@ -52,7 +52,7 @@ def main():
     )
     #trainer.train()
     # Load neural net model
-    trainer.load_best_model()
+    #trainer.load_best_model()
     train, validation, test = dataloaders
 
     # Test CNN model
@@ -64,7 +64,7 @@ def main():
     test_loss, test_acc = compute_loss_and_accuracy(test, trainer.model, torch.nn.CrossEntropyLoss())
     # ---------------- TESTING ----------------------------------------------
     # Visualize training
-    create_plots(trainer, "bs_16_gen_4_second_try")
+    create_plots(trainer, "bs_16_gen_4_again")
 
 
 if __name__ == "__main__":
