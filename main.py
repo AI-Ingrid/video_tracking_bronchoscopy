@@ -11,7 +11,7 @@ def main():
     """ The function running the entire pipeline of the project """
 
     # ---------------- TRAINNG ----------------------------------------------
-    random.seed(1)
+    random.seed(0)
     # Create frames, label them and preprocess them
     #convert_video_to_frames(videos_path, frames_path)
     #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
@@ -50,9 +50,14 @@ def main():
         neural_net,
         dataloaders
     )
-    #trainer.train()
+    trainer.train()
+
+    # Visualize training
+    create_plots(trainer, "bs_16_gen_4_again")
+
     # Load neural net model
     #trainer.load_best_model()
+    
     train, validation, test = dataloaders
 
     # Test CNN model
@@ -63,8 +68,7 @@ def main():
     print("---- TEST ----")
     test_loss, test_acc = compute_loss_and_accuracy(test, trainer.model, torch.nn.CrossEntropyLoss())
     # ---------------- TESTING ----------------------------------------------
-    # Visualize training
-    create_plots(trainer, "bs_16_gen_4_again")
+
 
 
 if __name__ == "__main__":

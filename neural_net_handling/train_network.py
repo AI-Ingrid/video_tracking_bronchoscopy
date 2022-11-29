@@ -123,6 +123,7 @@ class Trainer:
             f"Global step: {self.global_step:>6}",
             f"Validation Loss: {validation_loss:.2f}",
             f"Validation Accuracy: {validation_acc:.3f}",
+            f"Train Accuracy: {training_acc:.3f}",
             sep=", ")
         self.model.train()
 
