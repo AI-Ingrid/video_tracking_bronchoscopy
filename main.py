@@ -53,11 +53,11 @@ def main():
     trainer.train()
 
     # Visualize training
-    create_plots(trainer, "bs_16_gen_4_again")
+    create_plots(trainer, "bs_16_gen_4_again_2")
 
     # Load neural net model
     #trainer.load_best_model()
-    
+
     train, validation, test = dataloaders
 
     # Test CNN model
