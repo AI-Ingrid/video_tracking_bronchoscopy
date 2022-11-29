@@ -8,11 +8,11 @@ from neural_net_handling.train_network import Trainer, create_plots, compute_los
 
 import utils.neural_net_utilities as utils
 
+
 def main():
     """ The function running the entire pipeline of the project """
-
-    # ---------------- TRAINNG ----------------------------------------------
     random.seed(0)
+    # ---------------- PREPROCESS ----------------------------------------------
     # Create frames, label them and preprocess them
     #convert_video_to_frames(videos_path, frames_path)
     #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
@@ -42,6 +42,7 @@ def main():
         print("Neural network type not set")
         neural_net = None
 
+    # ---------------- TRAINING ----------------------------------------------
     # Train the CNN model
     trainer = Trainer(
         batch_size,
@@ -51,16 +52,16 @@ def main():
         neural_net,
         dataloaders
     )
-    #trainer.train()
+    trainer.train()
 
     # Visualize training
-    create_plots(trainer, "bs_16_gen_4_again_2")
+    create_plots(trainer, plot_name)
 
     # Load neural net model
-    trainer.load_best_model()
+    #trainer.load_best_model()
 
     train, validation, test = dataloaders
-
+    """
     for X_batch, Y_batch in test:
         X_batch = utils.to_cuda(X_batch)
         Y_batch = utils.to_cuda(Y_batch)
@@ -71,19 +72,15 @@ def main():
         print("Labels: ", Y_batch)
         print("Predictions shape: ", predictions.shape)
         print("Labels shape: ", Y_batch.shape)
-
-
-
-
-
-    # Test CNN model
-    #print("---- TRAINING ----")
-    #train_loss, train_acc = compute_loss_and_accuracy(train, trainer.model, torch.nn.CrossEntropyLoss())
-    #print("---- VALIDATION ----")
-    #val_loss, val_acc = compute_loss_and_accuracy(validation, trainer.model, torch.nn.CrossEntropyLoss())
-    #print("---- TEST ----")
-    #test_loss, test_acc = compute_loss_and_accuracy(test, trainer.model, torch.nn.CrossEntropyLoss())
+    """
     # ---------------- TESTING ----------------------------------------------
+    # Test CNN model
+    print("---- TRAINING ----")
+    train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
+    print("---- VALIDATION ----")
+    val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, torch.nn.CrossEntropyLoss())
+    print("---- TEST ----")
+    test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
 
 
 

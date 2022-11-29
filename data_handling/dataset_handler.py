@@ -40,14 +40,14 @@ class BronchusDataset(Dataset):
 
             # Get original label
             original_label = self.labeled_frames.iloc[index, 1]
-
+            """ 
             # Change label by using the given mapping system
             if original_label in self.keys:
                 new_label = self.label_mapping[original_label]
             else:
                 new_label = 0
-
-            return frame, new_label
+            """
+            return frame, original_label
 
         else:
             # Direction detection network
@@ -80,8 +80,32 @@ class BronchusDataset(Dataset):
             # Frames tensor: [5, 3, 256, 256] or [15, 256, 256]
             return frames, label
 
+    def perform_mapping(self, label):
+        # Label is >= num_generations
+        if label in self.keys:
+            new_label = self.label_mapping[label]
+        # Label is > num_generations
+        else:
+            new_label = 0
+        return new_label
+
+    def relabel_dataset(self):
+        """
+        Method that relabels the dataset based on a mapping created after the numbers of generations entered.
+        Method also deleted frames that has a larger generation than the one entered
+        """
+        # Change label by using the given mapping system
+        self.labeled_frames["Label"] = self.labeled_frames["Label"].apply(lambda label: self.perform_mapping(label))
+
+        # Remove frames not belonging to the generation chosen (labeled with 0)
+        self.labeled_frames = self.labeled_frames[(self.labeled_frames.Label != 0)]
+
     def get_dataloaders(self, batch_size, test_split, validation_split):
         """ Splits the data into train, test and validation data """
+        # Relabel the dataset based on num generations entered
+        if self.network_type == 'segment_det_net':
+            self.relabel_dataset()
+
         indices = list(range(len(self)))
         # Shuffle the dataset
         random.shuffle(indices)
