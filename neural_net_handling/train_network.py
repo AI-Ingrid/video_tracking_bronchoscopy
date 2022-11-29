@@ -168,14 +168,13 @@ class Trainer:
 
         # Compute the cross entropy loss for the batch
         loss = self.loss_criterion(predictions, Y_batch)
-
-        # TODO: Fix this, not sure if its correct
+        """
         # Find predicted label
         predicted_labels = np.zeros((Y_batch.size()))
         for batch_index, batch in enumerate(predictions.detach().numpy()):
             label = np.argmax(batch)
             predicted_labels[batch_index] = int(label+1)
-
+        """
         # Backpropagation
         loss.backward()
 
