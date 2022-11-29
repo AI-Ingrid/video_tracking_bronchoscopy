@@ -69,6 +69,8 @@ def main():
         predictions = trainer.model(X_batch)
         print("Predictions: ", predictions)
         print("Labels: ", Y_batch)
+        print("Predictions shape: ", predictions.shape)
+        print("Labels shape: ", Y_batch.shape)
 
 
 
