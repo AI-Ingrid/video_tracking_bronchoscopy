@@ -6,6 +6,7 @@ from neural_net_handling.network_architectures.segment_net import SegmentDetNet
 from neural_net_handling.network_architectures.direction_net import DirectionDetNet
 from neural_net_handling.train_network import Trainer, create_plots, compute_loss_and_accuracy
 
+import utils.neural_net_utilities as utils
 
 def main():
     """ The function running the entire pipeline of the project """
@@ -58,7 +59,20 @@ def main():
     # Load neural net model
     trainer.load_best_model()
 
-    #train, validation, test = dataloaders
+    train, validation, test = dataloaders
+
+    for X_batch, Y_batch in test:
+        X_batch = utils.to_cuda(X_batch)
+        Y_batch = utils.to_cuda(Y_batch)
+
+        # Perform the forward pass
+        predictions = trainer.model(X_batch)
+        print("Predictions: ", predictions)
+        print("Labels: ", Y_batch)
+
+
+
+
 
     # Test CNN model
     #print("---- TRAINING ----")
