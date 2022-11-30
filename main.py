@@ -51,7 +51,7 @@ def main():
         neural_net,
         dataloaders
     )
-    #trainer.train()
+    trainer.train()
 
     # Visualize training
     #create_plots(trainer, plot_name)
