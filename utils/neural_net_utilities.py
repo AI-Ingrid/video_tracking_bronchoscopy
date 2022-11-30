@@ -122,23 +122,25 @@ def plot_predictions_test_set(test_set, trainer):
             predicted_label = str(np.argmax(batch) + 1)  # Because zero-indexing
             original_label = str(Y_batch[batch_index])
             name = f"batch_{batch_num}_index_{batch_index}"
-            print("Predicted label: ", predicted_label, " Original label: ", )
+            print("Predicted label: ", predicted_label, " Original label: ", original_label)
 
             # Create plots
             plot_path = pathlib.Path("data_handling/test_set_images")
             plot_path.mkdir(exist_ok=True)
             plt.figure(figsize=(20, 8))
+            image = X_batch[batch_index]
+            image = image.permute(1, 2, 0).numpy()
 
             # Predicted label image
             plt.subplot(1, 2, 1)
             plt.title(f"Predicted Label: {predicted_label}")
-            plt.imshow(X_batch[batch_index])
+            plt.imshow(image)
             plt.legend()
 
             # Original label image
             plt.subplot(1, 2, 2)
             plt.title(f"Original Label: {original_label}")
-            plt.imshow(X_batch[batch_index])
+            plt.imshow(image)
             plt.legend()
             plt.savefig(plot_path.joinpath(f"{name}.png"))
             print("Figure saved..")
