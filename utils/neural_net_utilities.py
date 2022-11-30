@@ -119,7 +119,7 @@ def plot_predictions_test_set(test_set, trainer):
 
         predictions = predictions.cpu()
         # Find predicted label
-        for batch_index, batch in enumerate(predictions):
+        for batch_index, batch in enumerate(predictions.detach().numpy()):
             predicted_label = str(np.argmax(batch) + 1)  # Because zero-indexing
             original_label = str(Y_batch[batch_index])
             name = f"batch_{batch_num}_index_{batch_index}"
