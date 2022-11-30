@@ -61,6 +61,7 @@ def main():
 
     # ---------------- TESTING ----------------------------------------------
     train, validation, test = dataloaders
+    """ 
     # Test CNN model
     print("---- TRAINING ----")
     train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
@@ -68,7 +69,7 @@ def main():
     val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, torch.nn.CrossEntropyLoss())
     print("---- TEST ----")
     test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
-
+    """
     # Plot test images with predicted and original label on it
     plot_predictions_test_set(test, trainer)
 

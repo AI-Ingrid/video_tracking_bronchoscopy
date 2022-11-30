@@ -119,6 +119,7 @@ def plot_predictions_test_set(test_set, trainer):
 
         # Find predicted label
         for batch_index, batch in enumerate(predictions):
+            batch = to_cuda(batch)
             predicted_label = str(np.argmax(batch) + 1)  # Because zero-indexing
             original_label = str(Y_batch[batch_index])
             name = f"batch_{batch_num}_index_{batch_index}"
