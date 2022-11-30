@@ -232,7 +232,7 @@ class Trainer:
 
 
 def create_plots(trainer: Trainer, name: str):
-    plot_path = pathlib.Path("plots")
+    plot_path = pathlib.Path("data_handling/plots/training/")
     plot_path.mkdir(exist_ok=True)
     # Save plots and show them
     plt.figure(figsize=(20, 8))

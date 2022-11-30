@@ -119,13 +119,13 @@ def plot_predictions_test_set(test_set, trainer):
         predictions = predictions.cpu()
         # Find predicted label
         for batch_index, batch in enumerate(predictions.detach().numpy()):
-            predicted_label = str(np.argmax(batch) + 1)  # Because zero-indexing
-            original_label = str(Y_batch[batch_index])
+            predicted_label = str(np.argmax(batch))
+            original_label = str(int(Y_batch[batch_index]))
             name = f"batch_{batch_num}_index_{batch_index}"
             print("Predicted label: ", predicted_label, " Original label: ", original_label)
 
             # Create plots
-            plot_path = pathlib.Path("data_handling/test_set_images")
+            plot_path = pathlib.Path("data_handling/plots/test_set_images")
             plot_path.mkdir(exist_ok=True)
             plt.figure(figsize=(20, 8))
             image = X_batch[batch_index]
