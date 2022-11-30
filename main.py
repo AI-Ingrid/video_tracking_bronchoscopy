@@ -6,8 +6,7 @@ from neural_net_handling.network_architectures.segment_net import SegmentDetNet
 from neural_net_handling.network_architectures.direction_net import DirectionDetNet
 from neural_net_handling.train_network import Trainer, create_plots, compute_loss_and_accuracy
 
-import utils.neural_net_utilities as utils
-
+from utils.neural_net_utilities import plot_predictions_test_set
 
 def main():
     """ The function running the entire pipeline of the project """
@@ -52,28 +51,16 @@ def main():
         neural_net,
         dataloaders
     )
-    trainer.train()
+    #trainer.train()
 
     # Visualize training
-    create_plots(trainer, plot_name)
+    #create_plots(trainer, plot_name)
 
     # Load neural net model
-    #trainer.load_best_model()
+    best_model = trainer.load_best_model()
 
-    train, validation, test = dataloaders
-    """
-    for X_batch, Y_batch in test:
-        X_batch = utils.to_cuda(X_batch)
-        Y_batch = utils.to_cuda(Y_batch)
-
-        # Perform the forward pass
-        predictions = trainer.model(X_batch)
-        print("Predictions: ", predictions)
-        print("Labels: ", Y_batch)
-        print("Predictions shape: ", predictions.shape)
-        print("Labels shape: ", Y_batch.shape)
-    """
     # ---------------- TESTING ----------------------------------------------
+    train, validation, test = dataloaders
     # Test CNN model
     print("---- TRAINING ----")
     train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
@@ -81,6 +68,14 @@ def main():
     val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, torch.nn.CrossEntropyLoss())
     print("---- TEST ----")
     test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
+
+    # Plot test images with predicted and original label on it
+    plot_predictions_test_set(test, trainer)
+
+
+
+
+
 
 
 if __name__ == "__main__":

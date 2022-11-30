@@ -104,3 +104,43 @@ def plot_loss(loss_dict: dict, label: str = None, npoints_to_average=1, plot_var
         steps, np.array(mean_loss) -
         np.array(loss_std), np.array(mean_loss) + loss_std,
         alpha=.2, label=f"{label} variance over {npoints_to_average} steps")
+
+
+def plot_predictions_test_set(test_set, trainer):
+    # Store images with predicted and true label on it
+    batch_num = 0
+    for X_batch, Y_batch in test_set:
+        print("Batch num: ", batch_num)
+        X_batch = to_cuda(X_batch)
+        Y_batch = to_cuda(Y_batch)
+
+        # Perform the forward pass
+        predictions = trainer.model(X_batch)
+
+        # Find predicted label
+        for batch_index, batch in enumerate(predictions):
+            predicted_label = str(np.argmax(batch) + 1)  # Because zero-indexing
+            original_label = str(Y_batch[batch_index])
+            name = f"batch_{batch_num}_index_{batch_index}"
+            print("Predicted label: ", predicted_label, " Original label: ", )
+
+            # Create plots
+            plot_path = pathlib.Path("data_handling/test_set_images")
+            plot_path.mkdir(exist_ok=True)
+            plt.figure(figsize=(20, 8))
+
+            # Predicted label image
+            plt.subplot(1, 2, 1)
+            plt.title(f"Predicted Label: {predicted_label}")
+            plt.imshow(X_batch[batch_index])
+            plt.legend()
+
+            # Original label image
+            plt.subplot(1, 2, 2)
+            plt.title(f"Original Label: {original_label}")
+            plt.imshow(X_batch[batch_index])
+            plt.legend()
+            plt.savefig(plot_path.joinpath(f"{name}.png"))
+            print("Figure saved..")
+
+        batch_num += 1
