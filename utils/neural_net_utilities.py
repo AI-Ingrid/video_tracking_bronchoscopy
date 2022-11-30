@@ -111,11 +111,10 @@ def plot_predictions_test_set(test_set, trainer):
     batch_num = 0
     for X_batch, Y_batch in test_set:
         print("Batch num: ", batch_num)
-        X_batch = to_cuda(X_batch)
-        Y_batch = to_cuda(Y_batch)
+        X_batch_cuda = to_cuda(X_batch)
 
         # Perform the forward pass
-        predictions = trainer.model(X_batch)
+        predictions = trainer.model(X_batch_cuda)
 
         predictions = predictions.cpu()
         # Find predicted label
