@@ -2,11 +2,13 @@ from parameters import *
 from data_handling.dataset_handler import *
 from torchvision import transforms
 
+from data_handling.utils.dataset_utils import create_csv_files_for_datasets
+
 from neural_net_handling.network_architectures.segment_net import SegmentDetNet
 from neural_net_handling.network_architectures.direction_net import DirectionDetNet
-from neural_net_handling.train_network import Trainer
-
+from neural_net_handling.train_network import Trainer, create_plots, compute_loss_and_accuracy
 from neural_net_handling.utils.neural_net_utilities import plot_predictions_test_set
+
 
 def main():
     """ The function running the entire pipeline of the project """
@@ -16,9 +18,13 @@ def main():
     #convert_video_to_frames(videos_path, frames_path)
     #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
 
-    # Create dataset
-    bronchus_dataset = BronchusDataset(
-        csv_file=root_directory_path + f"/{dataset_type}_{network_type}_dataset.csv",
+    # ---------------- DATASET ----------------------------------------------
+    # Create a csv file for all frames for train dataset and test dataset
+    create_csv_files_for_datasets()
+
+    # Create train and test dataset
+    train_dataset = BronchusDataset(
+        csv_file=root_directory_path + f"/{dataset_type}_{network_type}_train_dataset.csv",
         root_directory=root_directory_path,
         network_type=network_type,
         num_bronchus_generations=num_bronchus_generations,
@@ -26,12 +32,24 @@ def main():
             transforms.ToTensor()
         ]))
 
-    # Load dataset
-    dataloaders = bronchus_dataset.get_dataloaders(batch_size, test_split, validation_split)
+    # Create train dataset
+    test_dataset = BronchusDataset(
+        csv_file=root_directory_path + f"/{dataset_type}_{network_type}_test_dataset.csv",
+        root_directory=root_directory_path,
+        network_type=network_type,
+        num_bronchus_generations=num_bronchus_generations,
+        transform=transforms.Compose([
+            transforms.ToTensor()
+        ]))
 
+    # Load train and test dataset
+    train_dataloaders = train_dataset.get_train_dataloaders(batch_size, test_split, validation_split)
+    test_dataloader = test_dataset.get_test_dataloaders()
+
+    # ---------------- ARTIFICIAL NEURAL NETWORK ----------------------------------------------
     # Create a CNN model
     if network_type == "segment_det_net":
-        num_classes = bronchus_dataset.get_num_classes()
+        num_classes = train_dataset.get_num_classes()
         neural_net = SegmentDetNet(num_classes)
 
     elif network_type == "direction_det_net":
@@ -49,19 +67,21 @@ def main():
         early_stop_count,
         epochs,
         neural_net,
-        dataloaders
+        train_dataloaders
     )
     trainer.train()
 
     # Visualize training
-    #create_plots(trainer, plot_name)
+    create_plots(trainer, plot_name)
 
+    # ---------------- TESTING ----------------------------------------------
     # Load neural net model
     best_model = trainer.load_best_model()
 
-    # ---------------- TESTING ----------------------------------------------
-    train, validation, test = dataloaders
-    """ 
+    # Split the datasets in train, test and validation
+    train, validation = train_dataloaders
+    test = test_dataloader
+
     # Test CNN model
     print("---- TRAINING ----")
     train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
@@ -69,14 +89,9 @@ def main():
     val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, torch.nn.CrossEntropyLoss())
     print("---- TEST ----")
     test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
-    """
+
     # Plot test images with predicted and original label on it
     plot_predictions_test_set(test, trainer)
-
-
-
-
-
 
 
 if __name__ == "__main__":
