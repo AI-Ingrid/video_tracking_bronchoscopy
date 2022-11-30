@@ -20,7 +20,7 @@ def main():
 
     # ---------------- DATASET ----------------------------------------------
     # Create a csv file for all frames for train dataset and test dataset
-    create_csv_files_for_datasets()
+    create_csv_files_for_datasets(test_split)
 
     # Create train and test dataset
     train_dataset = BronchusDataset(
@@ -43,8 +43,8 @@ def main():
         ]))
 
     # Load train and test dataset
-    train_dataloaders = train_dataset.get_train_dataloaders(batch_size, test_split, validation_split)
-    test_dataloader = test_dataset.get_test_dataloaders()
+    train_dataloaders = train_dataset.get_train_dataloaders(batch_size, validation_split)
+    test_dataloader = test_dataset.get_test_dataloaders(batch_size)
 
     # ---------------- ARTIFICIAL NEURAL NETWORK ----------------------------------------------
     # Create a CNN model

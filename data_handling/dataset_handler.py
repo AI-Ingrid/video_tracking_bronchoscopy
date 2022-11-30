@@ -100,9 +100,9 @@ class BronchusDataset(Dataset):
         # Remove frames not belonging to the generation chosen (labeled with 0)
         self.labeled_frames = self.labeled_frames[(self.labeled_frames.Label != 0)]
 
-    def get_dataloaders(self, batch_size, test_split, validation_split):
+    def get_train_dataloaders(self, batch_size, validation_split):
         """ Splits the data into train, test and validation data """
-        # Relabel the dataset based on num generations entered
+        # Re-label the dataset based on num generations entered
         if self.network_type == 'segment_det_net':
             self.relabel_dataset()
 
@@ -110,31 +110,35 @@ class BronchusDataset(Dataset):
         # Shuffle the dataset
         random.shuffle(indices)
 
-        # Test
-        test_split_index = int(np.floor(test_split * len(self)))
-        test_indices = indices[:test_split_index]
-        #test_indices = np.random.choice(indices, size=test_split_index, replace=False)
-        test_sampler = sampler.SubsetRandomSampler(test_indices)
-        test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=test_sampler, drop_last=True)
-
-        # Train (temporary)
-        #temp_train_indices = list(set(indices) - set(test_indices))
-        temp_train_indices = indices[test_split_index:]
-
         # Validation
-        validation_split_index = int(np.floor(validation_split * len(temp_train_indices)))
-        validation_indices = temp_train_indices[:validation_split_index]
-        #validation_indices = np.random.choice(temp_train_indices, size=validation_split_index, replace=False)
+        validation_split_index = int(np.floor(validation_split * len(self)))
+        validation_indices = indices[:validation_split_index]
         validation_sampler = sampler.SubsetRandomSampler(validation_indices)
         validation_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=validation_sampler, drop_last=True)
 
         # Train
-        #train_indices = list(set(temp_train_indices) - set(validation_indices))
-        train_indices = temp_train_indices[validation_split_index:]
+        train_indices = indices[validation_split_index:]
         train_sampler = sampler.SubsetRandomSampler(train_indices)
         train_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=train_sampler, drop_last=True)
 
-        return train_loader, validation_loader, test_loader
+        return train_loader, validation_loader
+
+    def get_test_dataloaders(self, batch_size):
+        """ Returns a dataloader for the test data """
+        # Re-label the dataset based on num generations entered
+        if self.network_type == 'segment_det_net':
+            self.relabel_dataset()
+
+        indices = list(range(len(self)))
+
+        # Shuffle the dataset
+        random.shuffle(indices)
+
+        # Create Test Data Loader
+        test_sampler = sampler.SubsetRandomSampler(indices)
+        test_loader = torch.utils.data.DataLoader(self, batch_size=batch_size, sampler=test_sampler, drop_last=True)
+
+        return test_loader
 
     def get_label_mapping(self):
         """
