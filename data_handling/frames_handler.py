@@ -12,8 +12,8 @@ from tqdm import tqdm   # create progress bars, see sample usage below
 from scipy.spatial.distance import cdist
 
 import parameters
-from utils.video_utilities import get_trim_start_end_frames, VideoTrimmingLimits
-from utils.misc_utilities import find_next_folder_nbr
+from data_handling.utils.video_utilities import get_trim_start_end_frames, VideoTrimmingLimits
+from data_handling.utils.misc_utilities import find_next_folder_nbr
 
 
 matplotlib.use('Agg')   # Use 'Agg' backend to avoid memory overload

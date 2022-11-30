@@ -1,12 +1,12 @@
 from parameters import *
 from data_handling.dataset_handler import *
-from torchvision import transforms, datasets
+from torchvision import transforms
 
 from neural_net_handling.network_architectures.segment_net import SegmentDetNet
 from neural_net_handling.network_architectures.direction_net import DirectionDetNet
-from neural_net_handling.train_network import Trainer, create_plots, compute_loss_and_accuracy
+from neural_net_handling.train_network import Trainer
 
-from utils.neural_net_utilities import plot_predictions_test_set
+from neural_net_handling.utils.neural_net_utilities import plot_predictions_test_set
 
 def main():
     """ The function running the entire pipeline of the project """

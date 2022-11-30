@@ -1,9 +1,8 @@
-import numpy as np
 import torch
 import typing
 import time
 import collections
-import utils.neural_net_utilities as utils
+import neural_net_handling.utils.neural_net_utilities as utils
 import pathlib
 
 import matplotlib.pyplot as plt
