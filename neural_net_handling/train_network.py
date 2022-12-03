@@ -59,7 +59,8 @@ class Trainer:
                  early_stop_count: int,
                  epochs: int,
                  model: torch.nn.Module,
-                 dataloaders: typing.List[torch.utils.data.DataLoader]):
+                 dataloaders: typing.List[torch.utils.data.DataLoader],
+                 network_type: str):
         """
             Initialize our trainer class.
         """
@@ -67,6 +68,7 @@ class Trainer:
         self.learning_rate = learning_rate
         self.early_stop_count = early_stop_count
         self.epochs = epochs
+        self.network_type = network_type
 
         # TODO: Use focal loss instead
         # Since we are doing multi-class classification, we use CrossEntropyLoss
@@ -84,7 +86,7 @@ class Trainer:
                                           self.learning_rate)
 
         # Load our dataset
-        self.dataloader_train, self.dataloader_val, self.dataloader_test = dataloaders
+        self.dataloader_train, self.dataloader_val = dataloaders
 
         # Validate our model everytime we pass through 25% of the dataset
         self.num_steps_per_val = len(self.dataloader_train) // 5
@@ -101,7 +103,7 @@ class Trainer:
             loss=collections.OrderedDict(),
             accuracy=collections.OrderedDict()
         )
-        self.checkpoint_dir = pathlib.Path("checkpoints")
+        self.checkpoint_dir = pathlib.Path(f"checkpoints_{self.network_type}")
 
     def validation_step(self):
         """

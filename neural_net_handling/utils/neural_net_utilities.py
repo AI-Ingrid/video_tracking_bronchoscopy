@@ -125,7 +125,7 @@ def plot_predictions_test_set(test_set, trainer):
             print("Predicted label: ", predicted_label, " Original label: ", original_label)
 
             # Create plots
-            plot_path = pathlib.Path("data_handling/plots/test_set_images")
+            plot_path = pathlib.Path(f"data_handling/plots/test_set_images_{trainer.network_type}")
             plot_path.mkdir(exist_ok=True)
             plt.figure(figsize=(20, 8))
             image = X_batch[batch_index]

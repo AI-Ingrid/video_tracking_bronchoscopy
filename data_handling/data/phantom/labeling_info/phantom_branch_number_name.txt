@@ -1,0 +1,42 @@
+1:Trachea
+2:Right middle lobe bronchus
+3:Right lower lobe bronchus (1)
+4:Left main bronchus (1)
+5:Right main bronchus
+6:Right B5
+7:Right B4
+8:Right B10
+9:Right B8 (1)
+10:Right B6
+11:Right lower lobe bronchus (2)
+12:Left lower lobe bronchus
+13:Left upper lobe bronchus
+14:Right upper lobe bronchus
+15:Right truncus intermedius
+
+26:Right B8 (2)
+27:Right B9
+
+32:Right B7
+33:Right lower lobe bronchus (3)
+
+36:Left B10
+37:Left B9
+38:Left B6
+39:Left main bronchus (2)
+
+40:Left B4
+41:Left B5
+
+42:Left upper division bronchus
+43:Left singular bronchus
+
+48:Right B3
+49:Right B1
+50:Right B2
+
+82:Left B8
+83:Left main bronchus (3)
+
+90:Left B3
+91:Left B2

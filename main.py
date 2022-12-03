@@ -20,7 +20,7 @@ def main():
 
     # ---------------- DATASET ----------------------------------------------
     # Create a csv file for all frames for train dataset and test dataset
-    create_csv_files_for_datasets(dataset_path, train_dataset_path, test_dataset_path, test_split)
+    #create_csv_files_for_datasets(dataset_path, train_dataset_path, test_dataset_path, test_split, network_type)
 
     # Create train and test dataset
     train_dataset = BronchusDataset(
@@ -67,7 +67,8 @@ def main():
         early_stop_count,
         epochs,
         neural_net,
-        train_dataloaders
+        train_dataloaders,
+        network_type
     )
     trainer.train()
 
@@ -76,7 +77,7 @@ def main():
 
     # ---------------- TESTING ----------------------------------------------
     # Load neural net model
-    #best_model = trainer.load_best_model()
+    best_model = trainer.load_best_model()
 
     # Split the datasets in train, test and validation
     train, validation = train_dataloaders

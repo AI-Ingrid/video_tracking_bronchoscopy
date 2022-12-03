@@ -2,6 +2,7 @@ import pandas as pd
 from parameters import root_directory_path, dataset_type
 import os
 import random
+import numpy as np
 
 
 def get_num_videos():
@@ -10,7 +11,18 @@ def get_num_videos():
     return len(videos)
 
 
-def create_csv_files_for_datasets(dataset_path, train_dataset_path, test_dataset_path, test_split):
+def get_3_digit_string(video_indices):
+    video_indices_string = []
+    for element in video_indices:
+        if len(element) == 1:
+            element = '00' + element
+        elif len(element) == 2:
+            element = '0' + element
+        video_indices_string.append(element)
+    return video_indices_string
+
+
+def create_csv_files_for_datasets(dataset_path, train_dataset_path, test_dataset_path, test_split, network_type):
     # Fetch the original dataset file
     dataset = pd.read_csv(dataset_path)
 
@@ -20,30 +32,44 @@ def create_csv_files_for_datasets(dataset_path, train_dataset_path, test_dataset
 
     # Get random videos
     test_video_indices = [str(random.randint(0, num_videos)) for i in range(num_test_videos)]
-    test_video_indices_string = []
-    for element in test_video_indices:
-        if len(element) == 1:
-            element = '00' + element
-        elif len(element) == 2:
-            element = '0' + element
-        test_video_indices_string.append(element)
+
+    # Get the train video indices
+    dataset_indices = [str(index) for index in range(num_videos)]
+    train_video_indices = [index for index in dataset_indices if index not in test_video_indices]
+
+    test_video_indices_string = get_3_digit_string(test_video_indices)
+    train_video_indices_string = get_3_digit_string(train_video_indices)
 
     test_videos = []
     train_videos = []
-    for video in test_video_indices_string:
-        # Add test videos to temp dataframe
-        temp_test_dataframe = dataset[dataset['Frame'].str.contains(f'Sequence_{video}')]
 
-        # Create a temp train dataframe containing the test dataframe and NOT the just added test video
-        temp_train_dataframe = dataset[dataset['Frame'].str.contains(f'Sequence_{video}') == False]
+    # Create dataframe for every test video
+    for test_video in test_video_indices_string:
+        # Add test videos to temp dataframe
+        if network_type == 'segment_det_net':
+            temp_test_dataframe = dataset[dataset['Frame'].str.contains(f'Sequence_{test_video}')]
+
+        elif network_type == 'direction_det_net':
+            temp_test_dataframe = dataset[dataset['Frame_1'].str.contains(f'Sequence_{test_video}')]
 
         # Store the temporary dataframes
         test_videos.append(temp_test_dataframe)
+
+    # Create dataframe for every train video
+    for train_video in train_video_indices_string:
+        # Add test videos to temp dataframe
+        if network_type == 'segment_det_net':
+            temp_train_dataframe = dataset[dataset['Frame'].str.contains(f'Sequence_{train_video}')]
+
+        elif network_type == 'direction_det_net':
+            temp_train_dataframe = dataset[dataset['Frame_1'].str.contains(f'Sequence_{train_video}')]
+
+        # Store the temporary dataframes
         train_videos.append(temp_train_dataframe)
 
     # Create the final dataset by concatenating the dataframes in the array
     test_dataset = pd.concat(test_videos).reset_index(drop=True)
-    train_dataset = pd.concat(train_videos).reset_index(drop=True).drop_duplicates(keep='first')
+    train_dataset = pd.concat(train_videos).reset_index(drop=True)
 
     # Save dataframes as csv files
     test_dataset.to_csv(test_dataset_path, index=False)
