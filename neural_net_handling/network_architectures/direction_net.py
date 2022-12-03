@@ -36,7 +36,7 @@ class DirectionDetNet(nn.Module):
         self.feature_extractor.fc = nn.Linear(512, 256)
 
         # Handle temporal data
-        self.time_distributed = TimeDistributed(self.model)
+        self.time_distributed = TimeDistributed(self.feature_extractor)
         self.LSTM = nn.LSTM(self.time_distributed)
 
         # Classifier
