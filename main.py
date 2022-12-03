@@ -77,7 +77,7 @@ def main():
 
     # ---------------- TESTING ----------------------------------------------
     # Load neural net model
-    best_model = trainer.load_best_model()
+    #best_model = trainer.load_best_model()
 
     # Split the datasets in train, test and validation
     train, validation = train_dataloaders
