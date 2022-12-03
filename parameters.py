@@ -29,7 +29,7 @@ test_dataset_path = root_directory_path + f"/datasets/test/{dataset_type}_{netwo
 train_dataset_path = root_directory_path + f"/datasets/train/{dataset_type}_{network_type}_train_dataset.csv"
 
 
-
 # Visualization
-plot_name = f"{network_type}_batchsize_{batch_size}_epochs_{epochs}"
-#plot_name = f"{network_type}_batchsize_{batch_size}_generations_{num_bronchus_generations}"
+train_plot_path = f"data_handling/plots/training/{network_type}/"
+train_plot_name = f"{network_type}_batchsize_{batch_size}_epochs_{epochs}_generations_{num_bronchus_generations}"
+test_plot_path = f"data_handling/plots/testing/{network_type}/"

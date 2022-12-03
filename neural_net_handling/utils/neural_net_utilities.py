@@ -106,7 +106,7 @@ def plot_loss(loss_dict: dict, label: str = None, npoints_to_average=1, plot_var
         alpha=.2, label=f"{label} variance over {npoints_to_average} steps")
 
 
-def plot_predictions_test_set(test_set, trainer):
+def plot_predictions_test_set(test_set, trainer, path):
     # Store images with predicted and true label on it
     batch_num = 0
     for X_batch, Y_batch in test_set:
@@ -125,7 +125,7 @@ def plot_predictions_test_set(test_set, trainer):
             print("Predicted label: ", predicted_label, " Original label: ", original_label)
 
             # Create plots
-            plot_path = pathlib.Path(f"data_handling/plots/test_set_images_{trainer.network_type}")
+            plot_path = pathlib.Path(path)
             plot_path.mkdir(exist_ok=True)
             plt.figure(figsize=(20, 8))
             image = X_batch[batch_index]

@@ -73,7 +73,7 @@ def main():
     trainer.train()
 
     # Visualize training
-    create_plots(trainer, plot_name)
+    create_plots(trainer, train_plot_path, train_plot_name)
 
     # ---------------- TESTING ----------------------------------------------
     # Load neural net model
@@ -92,7 +92,7 @@ def main():
     test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
 
     # Plot test images with predicted and original label on it
-    plot_predictions_test_set(test, trainer)
+    plot_predictions_test_set(test, trainer, test_plot_path)
 
 
 if __name__ == "__main__":

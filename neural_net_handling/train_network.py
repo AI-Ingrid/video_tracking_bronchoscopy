@@ -232,8 +232,8 @@ class Trainer:
         self.model.load_state_dict(state_dict)
 
 
-def create_plots(trainer: Trainer, name: str):
-    plot_path = pathlib.Path("data_handling/plots/training/")
+def create_plots(trainer: Trainer, path: str, name: str):
+    plot_path = pathlib.Path(path)
     plot_path.mkdir(exist_ok=True)
     # Save plots and show them
     plt.figure(figsize=(20, 8))
