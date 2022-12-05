@@ -2,10 +2,13 @@ import torch
 import typing
 import time
 import collections
+import torchvision
+
 import neural_net_handling.utils.neural_net_utilities as utils
 import pathlib
-
+import numpy as np
 import matplotlib.pyplot as plt
+from parameters import alpha, gamma
 
 
 def compute_loss_and_accuracy(
@@ -70,9 +73,11 @@ class Trainer:
         self.epochs = epochs
         self.network_type = network_type
 
-        # TODO: Use focal loss instead
         # Since we are doing multi-class classification, we use CrossEntropyLoss
         self.loss_criterion = torch.nn.CrossEntropyLoss()
+
+        # Focal loss
+        #self.loss_criterion = torchvision.ops.sigmoid_focal_loss
 
         # Initialize the model
         self.model = model
@@ -167,6 +172,21 @@ class Trainer:
         # Perform the forward pass
         predictions = self.model(X_batch)
 
+        # Focal loss
+        """
+        predictions = predictions.cpu()
+        predicted_labels = np.zeros(Y_batch.shape)
+
+        # Find predicted label
+        for batch_index, batch in enumerate(predictions.detach().numpy()):
+            predicted_label = np.argmax(batch)
+            predicted_labels[batch_index] = predicted_label
+
+        predicted_labels = torch.from_numpy(predicted_labels)
+        
+        # Focal loss
+        loss = self.loss_criterion(predicted_labels, Y_batch.float(), alpha, gamma, reduction="none")
+        """
         # Compute the cross entropy loss for the batch
         loss = self.loss_criterion(predictions, Y_batch)
 
@@ -197,6 +217,7 @@ class Trainer:
             # Perform a full pass through all the training samples
             for X_batch, Y_batch in self.dataloader_train:
                 print("Batch number: ", batch_num)
+                print("X_batch_shape", X_batch.shape)
                 batch_num += 1
                 loss = self.train_step(X_batch, Y_batch)
                 self.train_history["loss"][self.global_step] = loss

@@ -40,13 +40,6 @@ class BronchusDataset(Dataset):
 
             # Get original label
             original_label = self.labeled_frames.iloc[index, 1]
-            """ 
-            # Change label by using the given mapping system
-            if original_label in self.keys:
-                new_label = self.label_mapping[original_label]
-            else:
-                new_label = 0
-            """
             return frame, original_label
 
         else:
@@ -65,19 +58,26 @@ class BronchusDataset(Dataset):
             frame_4 = io.imread(frame_name_4)
             frame_5 = io.imread(frame_name_5)
 
-            if self.transform:
-                frame_1 = self.transform(frame_1)
-                frame_2 = self.transform(frame_2)
-                frame_3 = self.transform(frame_3)
-                frame_4 = self.transform(frame_4)
-                frame_5 = self.transform(frame_5)
+            frames = [frame_1, frame_2, frame_3, frame_4, frame_5]
 
-            frames = torch.concat([frame_1, frame_2, frame_3, frame_4, frame_5])
+            if self.transform:
+                #frame_1 = self.transform(frame_1)
+                #frame_2 = self.transform(frame_2)
+                #frame_3 = self.transform(frame_3)
+                #frame_4 = self.transform(frame_4)
+                #frame_5 = self.transform(frame_5)
+                # TODO: Inefficient to transform this way
+                frames = torch.tensor(frames)
+
+            # Frames tensor: [5, 3, 256, 256] or [15, 256, 256]
+            #frames = torch.concat([frame_1, frame_2, frame_3, frame_4, frame_5])
+
 
             # Get label
             label = self.labeled_frames.iloc[index, 5]
-
+            label = torch.nn.functional.one_hot(torch.tensor(label), num_classes=2)
             # Frames tensor: [5, 3, 256, 256] or [15, 256, 256]
+            # [timestamp, channels, height, width]
             return frames, label
 
     def perform_mapping(self, label):

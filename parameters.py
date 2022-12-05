@@ -9,13 +9,15 @@ frame_dimension = (256, 256)  # Dimension of the cropped frames that will be sen
 fps = 10
 
 # CNN
-network_type = "segment_det_net"  # {"direction_det_net", "segment_det_net"}
-num_bronchus_generations = 4  # {None, 1, 2, 3, 4}
+network_type = "direction_det_net"  # {"direction_det_net", "segment_det_net"}
+num_bronchus_generations = None  # {None, 1, 2, 3, 4}
 path_to_trained_models = f"neural_net_handling/trained_models/{network_type}_{num_bronchus_generations}_gens.pt"
-epochs = 15
+epochs = 12
 batch_size = 32
 learning_rate = 7e-5
 early_stop_count = 5
+alpha = 0.25
+gamma = 2.0
 
 
 # Data paths
