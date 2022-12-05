@@ -37,7 +37,7 @@ class DirectionDetNet(nn.Module):
 
         # Recurrent Neural Network
         self.RNN = nn.Sequential(
-            nn.LSTM(1000, 128, 1, batch_first=True),
+            nn.LSTM(1000, 128, 1, batch_first=True)[0],
             nn.Dropout(0.5),
             nn.Linear(128, 64),
             nn.ReLU(),
@@ -57,6 +57,5 @@ class DirectionDetNet(nn.Module):
 
     def forward(self, x):
         x = self.time_distributed(x)
-        x = self.LSTM(x)[0]
         x = self.RNN(x)
         return x
