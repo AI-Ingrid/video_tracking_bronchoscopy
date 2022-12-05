@@ -58,7 +58,7 @@ class BronchusDataset(Dataset):
             frame_4 = io.imread(frame_name_4)
             frame_5 = io.imread(frame_name_5)
 
-            frames = [frame_1, frame_2, frame_3, frame_4, frame_5]
+            frames = np.array([frame_1, frame_2, frame_3, frame_4, frame_5])
 
             if self.transform:
                 #frame_1 = self.transform(frame_1)
