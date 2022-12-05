@@ -36,8 +36,8 @@ class DirectionDetNet(nn.Module):
         self.time_distributed = TimeDistributed(self.feature_extractor)
 
         # Recurrent Neural Network
-        self.RNN = nn.Sequential(
-            nn.LSTM(1000, 128, 1, batch_first=True),
+        self.RNN = nn.LSTM(1000, 128, 1, batch_first=True)
+        self.classifier = nn.Sequential(
             nn.Dropout(0.5),
             nn.Linear(128, 64),
             nn.ReLU(),
@@ -55,7 +55,8 @@ class DirectionDetNet(nn.Module):
         for param in self.feature_extractor.fc.parameters():
             param.requires_grad = True
 
-    def forward(self, x):
-        x = self.time_distributed(x)
-        x = self.RNN(x)
-        return x
+    def forward(self, X):
+        X = self.time_distributed(X)
+        X = self.RNN(X)[0]
+        X = self.classifier(X)
+        return X

@@ -217,7 +217,6 @@ class Trainer:
             # Perform a full pass through all the training samples
             for X_batch, Y_batch in self.dataloader_train:
                 print("Batch number: ", batch_num)
-                print("X_batch_shape", X_batch.shape)
                 batch_num += 1
                 loss = self.train_step(X_batch, Y_batch)
                 self.train_history["loss"][self.global_step] = loss
