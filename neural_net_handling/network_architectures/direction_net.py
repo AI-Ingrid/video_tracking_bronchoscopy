@@ -37,7 +37,7 @@ class DirectionDetNet(nn.Module):
 
         # Recurrent Neural Network
         self.RNN = nn.Sequential(
-            nn.LSTM(1000, 128, 1, batch_first=True)[0],
+            nn.LSTM(1000, 128, 1, batch_first=True),
             nn.Dropout(0.5),
             nn.Linear(128, 64),
             nn.ReLU(),
