@@ -190,10 +190,13 @@ def plot_confusion_matrix(test_set, trainer, plot_path):
         predictions = trainer.model(X_batch_cuda)
 
         predicted_labels = get_predicted_labels(predictions)
-
+        print("predicted labels: ", predicted_labels)
+        print("original labels: ", Y_batch.numpy())
         all_predicted_labels += predicted_labels
         all_original_labels.append(Y_batch.numpy())
 
+    print("Length all original: ", len(all_original_labels))
+    print("Length all predicted: ", len(all_predicted_labels))
     all_original_labels = np.array(all_original_labels)
     classes = list(range(1, 28))
     cm = confusion_matrix(all_original_labels, all_predicted_labels, labels=classes)
