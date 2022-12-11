@@ -153,7 +153,9 @@ def compute_f1_score(test_set, trainer):
 
     for X_batch, Y_batch in test_set:
         # Perform the forward pass
-        predictions = trainer.model(X_batch)
+        predictions = trainer.model(X_batch_cuda)
+
+        predictions = predictions.detach().numpy()
 
         f1_macro_score += f1_score(Y_batch, predictions, average='macro')
         f1_micro_score += f1_score(Y_batch, predictions, average='micro')
