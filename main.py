@@ -81,6 +81,7 @@ def main():
 
     # ---------------- TESTING ----------------------------------------------
     # Load neural net model
+    print("loading best model.. ")
     best_model = trainer.load_best_model()
 
     # Split the datasets in train, test and validation
@@ -97,11 +98,14 @@ def main():
     """
 
     # F1 score
+    print("computing f1 score..")
     compute_f1_score(test, trainer)
 
     # Plot confusion matrix
+    print("plotting confusion matrix")
     plot_confusion_matrix(test, trainer, confusion_matrix_path)
 
+    print("plotting test images")
     # Plot test images with predicted and original label on it
     plot_predictions_test_set(test, trainer, test_plot_path, network_type)
 
