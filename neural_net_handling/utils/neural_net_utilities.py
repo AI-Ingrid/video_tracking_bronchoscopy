@@ -152,6 +152,7 @@ def compute_f1_score(test_set, trainer):
     f1_weighted_score = 0
 
     for X_batch, Y_batch in test_set:
+        X_batch_cuda = to_cuda(X_batch)
         # Perform the forward pass
         predictions = trainer.model(X_batch_cuda)
 
