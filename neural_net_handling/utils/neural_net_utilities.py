@@ -193,14 +193,12 @@ def plot_confusion_matrix(test_set, trainer, plot_path):
 
         all_predicted_labels += predicted_labels
         all_original_labels.append(Y_batch.numpy())
-        print("predicted labels: ", len(all_predicted_labels))
-        print("original labels: ", len(all_original_labels))
 
-    print("Length all original: ", len(all_original_labels))
-    print("Length all predicted: ", len(all_predicted_labels))
+
+
     all_original_labels = np.array(all_original_labels)
     classes = list(range(1, 28))
-    cm = confusion_matrix(all_original_labels, all_predicted_labels, labels=classes)
+    cm = confusion_matrix(all_original_labels.flatten(), all_predicted_labels, labels=classes)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=classes)
     disp.plot()
     plt.savefig(plot_path.joinpath(f"confusion_matrix.png"))
