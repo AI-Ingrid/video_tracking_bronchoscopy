@@ -182,7 +182,7 @@ def compute_f1_score(test_set, trainer):
 
 def plot_confusion_matrix(test_set, trainer, plot_path):
     all_predicted_labels = []
-    all_original_labels = []
+    all_original_labels = np.array()
     for X_batch, Y_batch in test_set:
         X_batch_cuda = to_cuda(X_batch)
 
@@ -194,7 +194,7 @@ def plot_confusion_matrix(test_set, trainer, plot_path):
         print("original labels: ", Y_batch.numpy())
 
         all_predicted_labels += predicted_labels
-        all_original_labels += Y_batch.numpy()
+        all_original_labels = np.concatenate(all_original_labels, Y_batch.numpy())
 
         print("all predicted labels: ", all_predicted_labels)
         print("all original labels: ", all_original_labels)
