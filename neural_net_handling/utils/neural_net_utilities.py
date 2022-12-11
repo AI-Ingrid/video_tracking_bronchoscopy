@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pathlib
 import random
-from sklearn.metrics import f1_score, ConfusionMatrixDisplay
+from sklearn.metrics import f1_score, ConfusionMatrixDisplay, confusion_matrix
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
@@ -195,7 +195,9 @@ def plot_confusion_matrix(test_set, trainer, plot_path):
         all_original_labels.append(Y_batch.numpy())
 
     all_original_labels = np.array(all_original_labels)
-    ConfusionMatrixDisplay.from_predictions(all_original_labels.flatten(), all_predicted_labels)
+    classes = list(range(1, 28))
+    cm = confusion_matrix(all_original_labels, all_predicted_labels, labels=classes)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=classes)
     plt.savefig(plot_path.joinpath(f"confusion_matrix.png"))
     plt.show()
 
