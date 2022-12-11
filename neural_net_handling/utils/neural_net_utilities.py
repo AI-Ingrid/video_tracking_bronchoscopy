@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pathlib
 import random
-from sklearn.metrics import f1_score,ConfusionMatrixDisplay
+from sklearn.metrics import f1_score, ConfusionMatrixDisplay
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
@@ -156,6 +156,8 @@ def compute_f1_score(test_set, trainer):
 
         # Perform the forward pass
         predictions = trainer.model(X_batch_cuda)
+
+        predictions = predictions.cpu()
 
         f1_macro_score += f1_score(Y_batch, predictions, average='macro')
         f1_micro_score += f1_score(Y_batch, predictions, average='micro')
