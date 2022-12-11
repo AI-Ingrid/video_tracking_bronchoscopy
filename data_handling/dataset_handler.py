@@ -61,24 +61,12 @@ class BronchusDataset(Dataset):
             frames = np.array([frame_1, frame_2, frame_3, frame_4, frame_5])
 
             if self.transform:
-                #frame_1 = self.transform(frame_1)
-                #frame_2 = self.transform(frame_2)
-                #frame_3 = self.transform(frame_3)
-                #frame_4 = self.transform(frame_4)
-                #frame_5 = self.transform(frame_5)
-                # TODO: Inefficient to transform this way
                 frames = torch.tensor(frames)
-
-            # Frames tensor: [5, 3, 256, 256] or [15, 256, 256]
-            #frames = torch.concat([frame_1, frame_2, frame_3, frame_4, frame_5])
-
 
             # Get label
             label = self.labeled_frames.iloc[index, 5]
             label = torch.nn.functional.one_hot(torch.tensor(label), num_classes=2)
-            # Frames tensor: [5, 3, 256, 256] or [15, 256, 256]
-            # [timestamp, channels, height, width]
-            return frames, label
+            return frames, label.float()
 
     def perform_mapping(self, label):
         # Label is >= num_generations

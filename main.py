@@ -2,12 +2,12 @@ from parameters import *
 from data_handling.dataset_handler import *
 from torchvision import transforms
 
-from data_handling.utils.dataset_utils import create_csv_files_for_datasets
+from data_handling.utils.dataset_utils import create_csv_files_for_datasets, compute_mean_std
 
 from neural_net_handling.network_architectures.segment_net import SegmentDetNet
 from neural_net_handling.network_architectures.direction_net import DirectionDetNet
 from neural_net_handling.train_network import Trainer, create_plots, compute_loss_and_accuracy
-from neural_net_handling.utils.neural_net_utilities import plot_predictions_test_set
+from neural_net_handling.utils.neural_net_utilities import plot_predictions_test_set, compute_f1_score, plot_confusion_matrix
 
 
 def main():
@@ -29,8 +29,10 @@ def main():
         network_type=network_type,
         num_bronchus_generations=num_bronchus_generations,
         transform=transforms.Compose([
-            transforms.ToTensor()
-        ]))
+            transforms.ToTensor(),
+            transforms.Normalize(mean=train_mean, std=train_std)
+        ]),
+    )
 
     # Create train dataset
     test_dataset = BronchusDataset(
@@ -39,8 +41,10 @@ def main():
         network_type=network_type,
         num_bronchus_generations=num_bronchus_generations,
         transform=transforms.Compose([
-            transforms.ToTensor()
-        ]))
+            transforms.ToTensor(),
+            transforms.Normalize(mean=test_mean, std=test_std)
+        ]),
+    )
 
     # Load train and test dataset
     train_dataloaders = train_dataset.get_train_dataloaders(batch_size, validation_split)
@@ -70,19 +74,19 @@ def main():
         train_dataloaders,
         network_type
     )
-    trainer.train()
+    #trainer.train()
 
     # Visualize training
-    create_plots(trainer, train_plot_path, train_plot_name)
+    #create_plots(trainer, train_plot_path, train_plot_name)
 
     # ---------------- TESTING ----------------------------------------------
     # Load neural net model
-    #best_model = trainer.load_best_model()
+    best_model = trainer.load_best_model()
 
     # Split the datasets in train, test and validation
     train, validation = train_dataloaders
     test = test_dataloader
-
+    """ 
     # Test CNN model
     print("---- TRAINING ----")
     train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
@@ -90,9 +94,16 @@ def main():
     val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, torch.nn.CrossEntropyLoss())
     print("---- TEST ----")
     test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
+    """
+
+    # F1 score
+    compute_f1_score(test, trainer)
+
+    # Plot confusion matrix
+    plot_confusion_matrix(test, trainer, confusion_matrix_path)
 
     # Plot test images with predicted and original label on it
-    plot_predictions_test_set(test, trainer, test_plot_path)
+    plot_predictions_test_set(test, trainer, test_plot_path, network_type)
 
 
 if __name__ == "__main__":

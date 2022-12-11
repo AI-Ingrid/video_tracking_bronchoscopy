@@ -4,10 +4,11 @@ tqdm==4.63.*
 imageio==2.9.*
 imageio_ffmpeg==0.4.3
 pillow>=8.4.0
-torch~=1.10.1
-torchvision~=0.11.2
+torch~=1.13.0
+torchvision~=0.13.1
 py7zr
 opencv-python~=4.6.0.66
-pandas~=1.1.5
-scipy~=1.5.4
-scikit-image~=0.17.2
+pandas~=1.4.4
+scipy~=1.9.1
+scikit-image~=0.19.2
+scikit-learn~=1.1.3

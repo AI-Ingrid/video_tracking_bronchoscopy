@@ -1,7 +1,7 @@
 import torchvision
 from torch import nn
 import torch
-from parameters import batch_size, frame_dimension
+from parameters import batch_size, hidden_nodes
 
 
 class TimeDistributed(nn.Module):
@@ -28,6 +28,7 @@ class TimeDistributed(nn.Module):
 class DirectionDetNet(nn.Module):
     def __init__(self):
         super().__init__()
+        self.hidden_nodes = hidden_nodes
 
         # Feature extractor
         self.feature_extractor = torchvision.models.resnet18(pretrained=True)
@@ -36,10 +37,10 @@ class DirectionDetNet(nn.Module):
         self.time_distributed = TimeDistributed(self.feature_extractor)
 
         # Recurrent Neural Network
-        self.RNN = nn.LSTM(1000, 128, 1, batch_first=True)
+        self.RNN = nn.LSTM(1000, self.hidden_nodes, 1, batch_first=True)
         self.classifier = nn.Sequential(
             nn.Dropout(0.5),
-            nn.Linear(128, 64),
+            nn.Linear(640, 64),
             nn.ReLU(),
             nn.Linear(64, 2),
             nn.Softmax(dim=1)
@@ -58,5 +59,8 @@ class DirectionDetNet(nn.Module):
     def forward(self, X):
         X = self.time_distributed(X)
         X = self.RNN(X)[0]
-        X = self.classifier(X)
+        # Reshape from 3D to 2D
+        original_shape = tuple(X.shape)
+        X_reshaped = X.reshape((batch_size, 5*self.hidden_nodes))
+        X = self.classifier(X_reshaped)
         return X

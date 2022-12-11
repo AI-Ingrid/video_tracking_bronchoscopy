@@ -2,7 +2,8 @@ import pandas as pd
 from parameters import root_directory_path, dataset_type
 import os
 import random
-import numpy as np
+import torch
+from tqdm import tqdm
 
 
 def get_num_videos():
@@ -95,6 +96,33 @@ def get_class_distribution(dataloader):
     for x_batch, y_batch in dataloader:
         count = get_class_distribution_for_batch(y_batch, count)
     return count
+
+
+def compute_mean_std(dataset, dataloader, frame_dim):
+    # placeholders
+    psum = torch.tensor([0.0, 0.0, 0.0])
+    psum_sq = torch.tensor([0.0, 0.0, 0.0])
+
+    # loop through images
+    for datatype in dataloader:
+        for X_batch, Y_batch in tqdm(datatype):
+            #psum += X_batch.sum(axis=[0, 2, 3])
+            psum += X_batch.sum(axis=[0, 1, 2, 3])
+            #psum_sq += (X_batch ** 2).sum(axis=[0, 2, 3])
+            psum_sq += (X_batch ** 2).sum(axis=[0, 1, 2, 3])
+
+    # pixel count
+    count = len(dataset) * frame_dim[0] * frame_dim[1]
+
+    # mean and std
+    total_mean = psum / count
+    total_var = (psum_sq / count) - (total_mean ** 2)
+    total_std = torch.sqrt(total_var)
+
+    # output
+    print('mean: ' + str(total_mean))
+    print('std:  ' + str(total_std))
+    return total_mean, total_std
 
 """
 def main():

@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pathlib
 import random
+from sklearn.metrics import f1_score,ConfusionMatrixDisplay
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
 
 # Allow torch/cudnn to optimize/analyze the input/output shape of convolutions
 # To optimize forward/backward pass.
@@ -106,7 +110,7 @@ def plot_loss(loss_dict: dict, label: str = None, npoints_to_average=1, plot_var
         alpha=.2, label=f"{label} variance over {npoints_to_average} steps")
 
 
-def plot_predictions_test_set(test_set, trainer, path):
+def plot_predictions_test_set(test_set, trainer, path, network_type):
     # Store images with predicted and true label on it
     batch_num = 0
     for X_batch, Y_batch in test_set:
@@ -131,18 +135,47 @@ def plot_predictions_test_set(test_set, trainer, path):
             image = X_batch[batch_index]
             image = image.permute(1, 2, 0).numpy()
 
-            # Predicted label image
+            # Predicted label and Original label image image
             plt.subplot(1, 2, 1)
-            plt.title(f"Predicted Label: {predicted_label}")
+            plt.title(f"Predicted Label: {predicted_label} \n Original Label: {original_label}")
             plt.imshow(image)
-            plt.legend()
-
-            # Original label image
-            plt.subplot(1, 2, 2)
-            plt.title(f"Original Label: {original_label}")
-            plt.imshow(image)
-            plt.legend()
             plt.savefig(plot_path.joinpath(f"{name}.png"))
             print("Figure saved..")
 
         batch_num += 1
+
+
+def compute_f1_score(test_set, trainer):
+    batch_num = 0
+    f1_macro_score = 0
+    f1_micro_score = 0
+    f1_weighted_score = 0
+
+    for X_batch, Y_batch in test_set:
+        X_batch_cuda = to_cuda(X_batch)
+
+        # Perform the forward pass
+        predictions = trainer.model(X_batch_cuda)
+
+        f1_macro_score += f1_score(Y_batch, predictions, average='macro')
+        f1_micro_score += f1_score(Y_batch, predictions, average='micro')
+        f1_weighted_score += f1_score(Y_batch, predictions, average='weighted')
+
+        batch_num += 1
+
+    print("F1 macro score: ", f1_macro_score/batch_num)
+    print("F1 micro score: ", f1_micro_score/batch_num)
+    print("F1 weighted score: ", f1_weighted_score/batch_num)
+
+
+def plot_confusion_matrix(test_set, trainer, plot_path):
+    for X_batch, Y_batch in test_set:
+        X_batch_cuda = to_cuda(X_batch)
+
+        # Perform the forward pass
+        predictions = trainer.model(X_batch_cuda)
+
+        ConfusionMatrixDisplay.from_predictions(Y_batch, predictions)
+        plt.savefig(plot_path.joinpath(f"confusion_matrix.png"))
+        plt.show()
+
