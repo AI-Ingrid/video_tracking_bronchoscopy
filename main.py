@@ -99,11 +99,11 @@ def main():
 
     # F1 score
     print("computing f1 score..")
-    compute_f1_score(test, trainer)
+    compute_f1_score(test_dataloader, trainer)
 
     # Plot confusion matrix
     print("plotting confusion matrix")
-    plot_confusion_matrix(test, trainer, confusion_matrix_path)
+    plot_confusion_matrix(test_dataloader, trainer, confusion_matrix_path)
 
     print("plotting test images")
     # Plot test images with predicted and original label on it
