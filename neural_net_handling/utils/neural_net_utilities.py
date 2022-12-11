@@ -190,8 +190,8 @@ def plot_confusion_matrix(test_set, trainer, plot_path):
         predictions = trainer.model(X_batch_cuda)
 
         predicted_labels = get_predicted_labels(predictions)
-        print("predicted labels: ", predicted_labels)
-        print("original labels: ", Y_batch.numpy())
+        print("predicted labels: ", len(predicted_labels))
+        print("original labels: ", len(Y_batch.numpy()))
         all_predicted_labels += predicted_labels
         all_original_labels.append(Y_batch.numpy())
 
