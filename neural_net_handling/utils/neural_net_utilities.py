@@ -198,6 +198,7 @@ def plot_confusion_matrix(test_set, trainer, plot_path):
     classes = list(range(1, 28))
     cm = confusion_matrix(all_original_labels, all_predicted_labels, labels=classes)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=classes)
+    disp.plot()
     plt.savefig(plot_path.joinpath(f"confusion_matrix.png"))
     plt.show()
 
