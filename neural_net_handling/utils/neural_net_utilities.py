@@ -190,14 +190,9 @@ def plot_confusion_matrix(test_set, trainer, plot_path):
         predictions = trainer.model(X_batch_cuda)
 
         predicted_labels = get_predicted_labels(predictions)
-        print("predicted labels: ", predicted_labels)
-        print("original labels: ", Y_batch.numpy())
 
         all_predicted_labels += predicted_labels
         all_original_labels.append(Y_batch.numpy())
-
-        print("all predicted labels: ", all_predicted_labels)
-        print("all original labels: ", all_original_labels)
 
     all_original_labels = np.array(all_original_labels)
     ConfusionMatrixDisplay.from_predictions(all_original_labels.flatten(), all_predicted_labels)
