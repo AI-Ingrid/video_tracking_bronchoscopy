@@ -152,21 +152,21 @@ def compute_f1_score(test_set, trainer):
     f1_weighted_score = 0
 
     for X_batch, Y_batch in test_set:
-        print("X_batch shape: ", X_batch.shape)
-        print("Y_batch shape: ", Y_batch.shape)
-
         X_batch_cuda = to_cuda(X_batch)
         # Perform the forward pass
         predictions = trainer.model(X_batch_cuda)
 
         predictions = predictions.cpu()
+        predicted_labels = []
 
         for batch_index, batch in enumerate(predictions.detach().numpy()):
-            print(Y_batch[1].numpy().shape)
-            print(batch.shape)
-            f1_macro_score += f1_score(Y_batch[1].numpy(), batch, average='macro')
-            f1_micro_score += f1_score(Y_batch[1].numpy(), batch, average='micro')
-            f1_weighted_score += f1_score(Y_batch[1].numpy(), batch, average='weighted')
+            predicted_label = np.argmax(batch)
+            predicted_labels.append(predicted_label)
+
+
+        f1_macro_score += f1_score(Y_batch.numpy(), predicted_labels, average='macro')
+        f1_micro_score += f1_score(Y_batch.numpy(), predicted_labels, average='micro')
+        f1_weighted_score += f1_score(Y_batch.numpy(), predicted_labels, average='weighted')
 
         batch_num += 1
 

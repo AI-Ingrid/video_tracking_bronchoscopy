@@ -30,7 +30,7 @@ def main():
         num_bronchus_generations=num_bronchus_generations,
         transform=transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize(mean=train_mean, std=train_std)
+            #transforms.Normalize(mean=train_mean, std=train_std)
         ]),
     )
 
@@ -42,7 +42,7 @@ def main():
         num_bronchus_generations=num_bronchus_generations,
         transform=transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize(mean=test_mean, std=test_std)
+            #transforms.Normalize(mean=test_mean, std=test_std)
         ]),
     )
 
@@ -99,11 +99,11 @@ def main():
 
     # F1 score
     print("computing f1 score..")
-    compute_f1_score(train, trainer)
+    compute_f1_score(test, trainer)
 
     # Plot confusion matrix
     print("plotting confusion matrix")
-    plot_confusion_matrix(test_dataloader, trainer, confusion_matrix_path)
+    plot_confusion_matrix(test, trainer, confusion_matrix_path)
 
     print("plotting test images")
     # Plot test images with predicted and original label on it
