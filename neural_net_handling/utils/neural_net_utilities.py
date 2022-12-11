@@ -157,7 +157,7 @@ def compute_f1_score(test_set, trainer):
         # Perform the forward pass
         predictions = trainer.model(X_batch_cuda)
 
-        predictions = predictions.cpu()
+        predictions = predictions.cpu().detach().numpy()
 
         f1_macro_score += f1_score(Y_batch, predictions, average='macro')
         f1_micro_score += f1_score(Y_batch, predictions, average='micro')
