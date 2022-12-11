@@ -159,6 +159,8 @@ def compute_f1_score(test_set, trainer):
         predictions = predictions.cpu()
 
         for batch_index, batch in enumerate(predictions.detach().numpy()):
+            print(Y_batch[batch_index])
+            print(batch)
             f1_macro_score += f1_score(Y_batch[batch_index].detach().numpy(), batch, average='macro')
             f1_micro_score += f1_score(Y_batch[batch_index].detach().numpy(), batch, average='micro')
             f1_weighted_score += f1_score(Y_batch[batch_index].detach().numpy(), batch, average='weighted')
