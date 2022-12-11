@@ -110,6 +110,17 @@ def plot_loss(loss_dict: dict, label: str = None, npoints_to_average=1, plot_var
         alpha=.2, label=f"{label} variance over {npoints_to_average} steps")
 
 
+def get_predicted_labels(predictions):
+    predictions = predictions.cpu()
+    predicted_labels = []
+
+    for batch_index, batch in enumerate(predictions.detach().numpy()):
+        predicted_label = np.argmax(batch)
+        predicted_labels.append(predicted_label)
+
+    return predicted_labels
+
+
 def plot_predictions_test_set(test_set, trainer, path, network_type):
     # Store images with predicted and true label on it
     batch_num = 0
@@ -156,13 +167,7 @@ def compute_f1_score(test_set, trainer):
         # Perform the forward pass
         predictions = trainer.model(X_batch_cuda)
 
-        predictions = predictions.cpu()
-        predicted_labels = []
-
-        for batch_index, batch in enumerate(predictions.detach().numpy()):
-            predicted_label = np.argmax(batch)
-            predicted_labels.append(predicted_label)
-
+        predicted_labels = get_predicted_labels(predictions)
 
         f1_macro_score += f1_score(Y_batch.numpy(), predicted_labels, average='macro')
         f1_micro_score += f1_score(Y_batch.numpy(), predicted_labels, average='micro')
@@ -176,13 +181,25 @@ def compute_f1_score(test_set, trainer):
 
 
 def plot_confusion_matrix(test_set, trainer, plot_path):
+    all_predicted_labels = []
+    all_original_labels = []
     for X_batch, Y_batch in test_set:
         X_batch_cuda = to_cuda(X_batch)
 
         # Perform the forward pass
         predictions = trainer.model(X_batch_cuda)
 
-        ConfusionMatrixDisplay.from_predictions(Y_batch, predictions)
-        plt.savefig(plot_path.joinpath(f"confusion_matrix.png"))
-        plt.show()
+        predicted_labels = get_predicted_labels(predictions)
+        print("predicted labels: ", predicted_labels)
+        print("original labels: ", Y_batch.numpy())
+
+        all_predicted_labels += predicted_labels
+        all_original_labels += Y_batch.numpy()
+
+        print("all predicted labels: ", all_predicted_labels)
+        print("all original labels: ", all_original_labels)
+
+    ConfusionMatrixDisplay.from_predictions(all_original_labels, all_predicted_labels)
+    plt.savefig(plot_path.joinpath(f"confusion_matrix.png"))
+    plt.show()
 
