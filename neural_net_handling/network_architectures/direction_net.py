@@ -43,7 +43,7 @@ class DirectionDetNet(nn.Module):
             nn.Linear(640, 64),
             nn.ReLU(),
             nn.Linear(64, 2),
-            nn.Softmax(dim=1)
+            #nn.Softmax(dim=1)
         )
 
         # Handle training for certain layers

@@ -74,10 +74,10 @@ def main():
         train_dataloaders,
         network_type
     )
-    #trainer.train()
+    trainer.train()
 
     # Visualize training
-    #create_plots(trainer, train_plot_path, train_plot_name)
+    create_plots(trainer, train_plot_path, train_plot_name)
 
     # ---------------- TESTING ----------------------------------------------
     # Load neural net model

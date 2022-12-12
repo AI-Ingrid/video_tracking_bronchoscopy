@@ -8,7 +8,7 @@ import neural_net_handling.utils.neural_net_utilities as utils
 import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
-from parameters import alpha, gamma
+from parameters import alpha, gamma, network_type
 
 
 def compute_loss_and_accuracy(
@@ -37,11 +37,18 @@ def compute_loss_and_accuracy(
 
             # Forward pass the images through our model
             output_probs = model(X_batch)
-
-            # Compute Accuracy
             _, predictions = torch.max(output_probs, 1)
             num_samples += Y_batch.shape[0]
-            accuracy += (Y_batch == predictions).sum().item()
+
+            # Handling on hot encoding on Y_batch for DirectionDetNet
+            if network_type == 'direction_det_net':
+                predictions = torch.nn.functional.one_hot(predictions, num_classes=2)
+                # Compute Accuracy
+                accuracy += (Y_batch == predictions).sum().item()/2
+
+            else:
+                # Compute Accuracy
+                accuracy += (Y_batch == predictions).sum().item()
 
             # Compute Loss
             average_loss += loss_criterion(output_probs, Y_batch)
