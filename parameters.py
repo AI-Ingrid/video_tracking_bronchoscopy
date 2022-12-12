@@ -19,7 +19,7 @@ test_std = torch.tensor([0.2422, 0.1825, 0.1487])
 
 num_bronchus_generations = 4  # {None, 1, 2, 3, 4}
 path_to_trained_models = f"neural_net_handling/trained_models/{network_type}_{num_bronchus_generations}_gens.pt"
-epochs = 5
+epochs = 1
 batch_size = 32
 learning_rate = 7e-5
 early_stop_count = 5

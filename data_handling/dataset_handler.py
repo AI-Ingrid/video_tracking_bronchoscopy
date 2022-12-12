@@ -40,7 +40,9 @@ class BronchusDataset(Dataset):
 
             # Get original label
             original_label = self.labeled_frames.iloc[index, 1]
-            return frame, original_label
+            num_classes = len(list(self.label_mapping.keys()))+1
+            label = torch.nn.functional.one_hot(torch.tensor(original_label), num_classes=num_classes)
+            return frame, label.float()
 
         else:
             # Direction detection network

@@ -74,20 +74,20 @@ def main():
         train_dataloaders,
         network_type
     )
-    trainer.train()
+    #trainer.train()
 
     # Visualize training
-    create_plots(trainer, train_plot_path, train_plot_name)
+    #create_plots(trainer, train_plot_path, train_plot_name)
 
     # ---------------- TESTING ----------------------------------------------
     # Load neural net model
-    print("loading best model.. ")
-    best_model = trainer.load_best_model()
+    #print("loading best model.. ")
+    #best_model = trainer.load_best_model()
 
     # Split the datasets in train, test and validation
     train, validation = train_dataloaders
     test = test_dataloader
-    """ 
+    """
     # Test CNN model
     print("---- TRAINING ----")
     train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
@@ -102,12 +102,12 @@ def main():
     #compute_f1_score(test, trainer)
 
     # Plot confusion matrix
-    print("plotting confusion matrix")
+    #print("plotting confusion matrix")
     plot_confusion_matrix(test, trainer, confusion_matrix_path)
 
-    print("plotting test images")
+    #print("plotting test images")
     # Plot test images with predicted and original label on it
-    plot_predictions_test_set(test, trainer, test_plot_path, network_type)
+    #plot_predictions_test_set(test, trainer, test_plot_path, network_type)
 
 
 if __name__ == "__main__":

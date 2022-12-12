@@ -1,4 +1,3 @@
-import torch
 import typing
 import time
 import collections
@@ -9,6 +8,9 @@ import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
 from parameters import alpha, gamma, network_type
+import torchmetrics.classification as tm
+import torch
+from tqdm import tqdm
 
 
 def compute_loss_and_accuracy(
@@ -26,39 +28,37 @@ def compute_loss_and_accuracy(
         [average_loss, accuracy]: both scalar.
     """
     average_loss = 0
-    accuracy = 0
+    f1 = 0
     num_samples = 0
     batch_size = 0
+    if network_type == "segment_det_net":
+        f1_metric = tm.F1Score(average='macro', task='multilabel', num_labels=27)
+    else:
+        f1_metric = tm.F1Score(average='macro', task='multilabel', num_labels=2)
     with torch.no_grad():
-        for (X_batch, Y_batch) in dataloader:
+        for (X_batch, Y_batch) in tqdm(dataloader):
             # Transfer images/labels to GPU VRAM, if possible
             X_batch = utils.to_cuda(X_batch)
             Y_batch = utils.to_cuda(Y_batch)
 
             # Forward pass the images through our model
             output_probs = model(X_batch)
-            _, predictions = torch.max(output_probs, 1)
+
+            predictions = torch.softmax(output_probs, dim=1)
             num_samples += Y_batch.shape[0]
 
-            # Handling on hot encoding on Y_batch for DirectionDetNet
-            if network_type == 'direction_det_net':
-                predictions = torch.nn.functional.one_hot(predictions, num_classes=2)
-                # Compute Accuracy
-                accuracy += (Y_batch == predictions).sum().item()/2
-
-            else:
-                # Compute Accuracy
-                accuracy += (Y_batch == predictions).sum().item()
+            # Compute F1 Score
+            f1 += f1_metric(predictions, Y_batch)
 
             # Compute Loss
             average_loss += loss_criterion(output_probs, Y_batch)
             batch_size += 1
 
     average_loss = average_loss / batch_size
-    accuracy = accuracy / num_samples
-    print(f'Accuracy of the network: {accuracy * 100} %')
-    print(f'Loss of the network: {average_loss}')
-    return average_loss, accuracy
+    f1 = f1 / batch_size
+    print(f'F1 score: {f1}')
+    print(f'Loss: {average_loss}')
+    return average_loss, f1
 
 
 class Trainer:
@@ -83,9 +83,6 @@ class Trainer:
         # Since we are doing multi-class classification, we use CrossEntropyLoss
         self.loss_criterion = torch.nn.CrossEntropyLoss()
 
-        # Focal loss
-        #self.loss_criterion = torchvision.ops.sigmoid_focal_loss
-
         # Initialize the model
         self.model = model
 
@@ -100,7 +97,7 @@ class Trainer:
         self.dataloader_train, self.dataloader_val = dataloaders
 
         # Validate our model everytime we pass through 25% of the dataset
-        self.num_steps_per_val = len(self.dataloader_train) // 5
+        self.num_steps_per_val = len(self.dataloader_train) // 230
         self.global_step = 0
         self.start_time = time.time()
 
@@ -122,12 +119,14 @@ class Trainer:
             Train, validation and test.
         """
         self.model.eval()
+
+        training_loss, training_acc = compute_loss_and_accuracy(self.dataloader_train, self.model, self.loss_criterion)
+        self.train_history["accuracy"][self.global_step] = training_acc
+
         validation_loss, validation_acc = compute_loss_and_accuracy(self.dataloader_val, self.model, self.loss_criterion)
         self.validation_history["loss"][self.global_step] = validation_loss
         self.validation_history["accuracy"][self.global_step] = validation_acc
 
-        training_loss, training_acc = compute_loss_and_accuracy(self.dataloader_train, self.model, self.loss_criterion)
-        self.train_history["accuracy"][self.global_step] = training_acc
         used_time = time.time() - self.start_time
         print(
             f"Epoch: {self.epoch:>1}",
@@ -178,21 +177,6 @@ class Trainer:
         # Perform the forward pass
         predictions = self.model(X_batch)
 
-        # Focal loss
-        """
-        predictions = predictions.cpu()
-        predicted_labels = np.zeros(Y_batch.shape)
-
-        # Find predicted label
-        for batch_index, batch in enumerate(predictions.detach().numpy()):
-            predicted_label = np.argmax(batch)
-            predicted_labels[batch_index] = predicted_label
-
-        predicted_labels = torch.from_numpy(predicted_labels)
-        
-        # Focal loss
-        loss = self.loss_criterion(predicted_labels, Y_batch.float(), alpha, gamma, reduction="none")
-        """
         # Compute the cross entropy loss for the batch
         loss = self.loss_criterion(predictions, Y_batch)
 
@@ -218,12 +202,8 @@ class Trainer:
         for epoch in range(self.epochs):
             self.epoch = epoch
             print("Epoch: ", epoch)
-            print("Length: ", len(self.dataloader_train))
-            batch_num = 0
             # Perform a full pass through all the training samples
-            for X_batch, Y_batch in self.dataloader_train:
-                print("Batch number: ", batch_num)
-                batch_num += 1
+            for X_batch, Y_batch in tqdm(self.dataloader_train):
                 loss = self.train_step(X_batch, Y_batch)
                 self.train_history["loss"][self.global_step] = loss
                 self.global_step += 1

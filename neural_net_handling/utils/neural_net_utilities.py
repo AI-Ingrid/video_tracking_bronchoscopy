@@ -4,9 +4,8 @@ import numpy as np
 import pathlib
 import random
 from sklearn.metrics import f1_score, ConfusionMatrixDisplay, confusion_matrix
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
+from parameters import network_type
+
 
 # Allow torch/cudnn to optimize/analyze the input/output shape of convolutions
 # To optimize forward/backward pass.
@@ -121,6 +120,33 @@ def get_predicted_labels(predictions):
     return predicted_labels
 
 
+def get_label_name(label):
+    label_names = {
+        1: "Trachea",
+        2: "Right Main Bronchus",
+        3: "Left Main Bronchus",
+        4: "Right/Left Upper Lobe Bronchus",
+        5: "Right Truncus Intermedicus",
+        6: "Left Lower Lobe Bronchus",
+        7: "Left Upper Lobe Bronchus",
+        8: "Right B1",
+        9: "Right B2",
+        10: "Right B3",
+        11: "Right Middle Lobe Bronchus 2",
+        12: "Right Lower Lobe Bronchus 1",
+        13: "Right Lower Lobe Bronchus 2",
+        14: "Left Main Bronchus",
+        15: "Left B6",
+        26: "Left Upper Division Bronchus",
+        27: "Left Singular Bronchus",
+    }
+    if label not in list(label_names.keys()):
+        name = label
+    else:
+        name = label_names[label]
+    return name
+
+
 def plot_predictions_test_set(test_set, trainer, path, network_type):
     # Store images with predicted and true label on it
     batch_num = 0
@@ -132,28 +158,95 @@ def plot_predictions_test_set(test_set, trainer, path, network_type):
         predictions = trainer.model(X_batch_cuda)
 
         predictions = predictions.cpu()
-        # Find predicted label
-        for batch_index, batch in enumerate(predictions.detach().numpy()):
-            predicted_label = str(np.argmax(batch))
-            original_label = str(int(Y_batch[batch_index]))
-            name = f"batch_{batch_num}_index_{batch_index}"
-            print("Predicted label: ", predicted_label, " Original label: ", original_label)
+        # DirectionDetNet
+        if network_type == 'direction_det_net':
+            label_names = {1: "Forward",
+                           0: "Backward"}
+            # Find predicted label
+            for batch_index, batch in enumerate(predictions.detach().numpy()):
+                predicted_label = int(np.argmax(batch))
+                predicted_name_label = label_names[predicted_label]
+                original_label = int(np.argmax(Y_batch[batch_index]))
+                original_name_label = label_names[original_label]
 
-            # Create plots
-            plot_path = pathlib.Path(path)
-            plot_path.mkdir(exist_ok=True)
-            plt.figure(figsize=(20, 8))
-            image = X_batch[batch_index]
-            image = image.permute(1, 2, 0).numpy()
+                name = f"batch_{batch_num}_index_{batch_index}"
+                print("Predicted label: ", predicted_name_label, " Original label: ", original_name_label)
 
-            # Predicted label and Original label image image
-            plt.subplot(1, 2, 1)
-            plt.title(f"Predicted Label: {predicted_label} \n Original Label: {original_label}")
-            plt.imshow(image)
-            plt.savefig(plot_path.joinpath(f"{name}.png"))
-            print("Figure saved..")
+                # Create plots
+                plot_path = pathlib.Path(path)
+                plot_path.mkdir(exist_ok=True)
+                fig = plt.figure(figsize=(25, 6), constrained_layout=True)
+                images = X_batch[batch_index]
+                fig.suptitle(f"Predicted Label: {predicted_name_label} \n Original Label: {original_name_label}")
 
-        batch_num += 1
+                # Image 1
+                plt.subplot(1, 5, 1)
+                image_1 = images[0].numpy()
+                plt.title("Frame 1")
+                plt.imshow(image_1)
+
+                # Image 2
+                plt.subplot(1, 5, 2)
+                image_2 = images[1].numpy()
+                plt.title("Frame 2")
+                plt.imshow(image_2)
+
+                # Image 3
+                plt.subplot(1, 5, 3)
+                image_3 = images[2].numpy()
+                plt.title("Frame 3")
+                plt.imshow(image_3)
+
+                # Image 4
+                plt.subplot(1, 5, 4)
+                image_4 = images[3].numpy()
+                plt.title("Frame 4")
+                plt.imshow(image_4)
+
+                # Image 5
+                plt.subplot(1, 5, 5)
+                image_5 = images[4].numpy()
+                plt.title("Frame 5")
+                plt.imshow(image_5)
+
+                plt.savefig(plot_path.joinpath(f"{name}.png"))
+                print("Saving figure..")
+
+            batch_num += 1
+            if batch_num == 10:
+                break
+
+        # SegmentDetNet
+        else:
+            for batch_index, batch in enumerate(predictions.detach().numpy()):
+                # Find predicted label
+                predicted_label = int(np.argmax(batch))
+                original_label = int(np.argmax(Y_batch[batch_index]))
+
+                # Get label names
+                original_name_label = get_label_name(original_label)
+                predicted_name_label = get_label_name(predicted_label)
+
+                name = f"batch_{batch_num}_index_{batch_index}"
+                print("Predicted label: ", str(predicted_label), " Original label: ", str(original_label))
+
+                # Create plots
+                plot_path = pathlib.Path(path)
+                plot_path.mkdir(exist_ok=True)
+                plt.figure(figsize=(8, 8), constrained_layout=True)
+                image = X_batch[batch_index]
+                image = image.permute(1, 2, 0).numpy()
+
+                # Predicted label and Original label image
+                plt.subplot(1, 2, 1)
+                plt.title(f"Predicted Label: {predicted_label} : {predicted_name_label} \n Original Label: {original_label}: {original_name_label}")
+                plt.imshow(image)
+                plt.savefig(plot_path.joinpath(f"{name}.png"))
+                print("Figure saved..")
+
+            batch_num += 1
+            if batch_num == 10:
+                break
 
 
 def compute_f1_score(test_set, trainer):
@@ -192,15 +285,21 @@ def plot_confusion_matrix(test_set, trainer, path):
         predictions = trainer.model(X_batch_cuda)
 
         predicted_labels = get_predicted_labels(predictions)
+        original_labels = get_predicted_labels(Y_batch)
 
         all_predicted_labels += predicted_labels
-        all_original_labels.append(Y_batch.numpy())
+        all_original_labels += original_labels
 
-    all_original_labels = np.array(all_original_labels)
-    classes = list(range(1, 28))
-    cm = confusion_matrix(all_original_labels.flatten(), all_predicted_labels, labels=classes)
+    if network_type == 'direction_det_net':
+        classes = list(range(0, 2))
+    else:
+        classes = list(range(1, 28))
+
+    cm = confusion_matrix(all_original_labels, all_predicted_labels, labels=classes)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=classes)
-    disp.plot()
+    fig, ax = plt.subplots(figsize=(20, 20))
+    plt.title(f"Confusion Metrics for {network_type}")
+    disp.plot(ax=ax)
     plt.savefig(plot_path.joinpath(f"confusion_matrix.png"))
     plt.show()
 
