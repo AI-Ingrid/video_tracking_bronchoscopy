@@ -74,6 +74,7 @@ def load_best_checkpoint(directory: pathlib.Path):
     filepath = directory.joinpath("best.ckpt")
     if not filepath.is_file():
         return None
+    #map_location = torch.device('cpu')
     return torch.load(directory.joinpath("best.ckpt"))
 
 
