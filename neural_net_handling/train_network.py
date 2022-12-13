@@ -48,6 +48,9 @@ def compute_loss_and_accuracy(
             decoded_Y_batch = utils.decode_one_hot_encoded_labels(Y_batch)
             targets = torch.tensor(np.array(decoded_Y_batch))
 
+            predictions = utils.to_cuda(predictions)
+            targets = utils.to_cuda(targets)
+
             num_samples += Y_batch.shape[0]
 
             # Compute F1 Score
