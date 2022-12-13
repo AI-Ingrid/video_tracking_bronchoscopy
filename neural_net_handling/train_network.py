@@ -45,10 +45,13 @@ def compute_loss_and_accuracy(
             output_probs = model(X_batch)
 
             predictions = torch.softmax(output_probs, dim=1)
+            decoded_Y_batch = utils.decode_one_hot_encoded_labels(Y_batch)
+            targets = decoded_Y_batch.tensor()
+
             num_samples += Y_batch.shape[0]
 
             # Compute F1 Score
-            f1 += f1_metric(predictions, Y_batch)
+            f1 += f1_metric(predictions, targets)
 
             # Compute Loss
             average_loss += loss_criterion(output_probs, Y_batch)

@@ -109,15 +109,15 @@ def plot_loss(loss_dict: dict, label: str = None, npoints_to_average=1, plot_var
         alpha=.2, label=f"{label} variance over {npoints_to_average} steps")
 
 
-def get_predicted_labels(predictions):
-    predictions = predictions.cpu()
-    predicted_labels = []
+def decode_one_hot_encoded_labels(one_hot_encoded_labels):
+    encoded_labels = one_hot_encoded_labels.cpu()
+    decoded_labels = []
 
-    for batch_index, batch in enumerate(predictions.detach().numpy()):
-        predicted_label = np.argmax(batch)
-        predicted_labels.append(predicted_label)
+    for batch_index, batch in enumerate(encoded_labels.detach().numpy()):
+        decoded_label = np.argmax(batch)
+        decoded_labels.append(decoded_label)
 
-    return predicted_labels
+    return decoded_labels
 
 
 def get_label_name(label):
@@ -260,8 +260,8 @@ def compute_f1_score(test_set, trainer):
         # Perform the forward pass
         predictions = trainer.model(X_batch_cuda)
 
-        predicted_labels = get_predicted_labels(predictions)
-        Y_batch_1d = get_predicted_labels(Y_batch)
+        predicted_labels = decode_one_hot_encoded_labels(predictions)
+        Y_batch_1d = decode_one_hot_encoded_labels(Y_batch)
 
         f1_macro_score += f1_score(Y_batch_1d, predicted_labels, average='macro')
         f1_micro_score += f1_score(Y_batch_1d, predicted_labels, average='micro')
