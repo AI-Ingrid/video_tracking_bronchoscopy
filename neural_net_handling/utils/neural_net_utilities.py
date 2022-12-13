@@ -285,8 +285,8 @@ def plot_confusion_matrix(test_set, trainer, path):
         # Perform the forward pass
         predictions = trainer.model(X_batch_cuda)
 
-        predicted_labels = get_predicted_labels(predictions)
-        original_labels = get_predicted_labels(Y_batch)
+        predicted_labels = decode_one_hot_encoded_labels(predictions)
+        original_labels = decode_one_hot_encoded_labels(Y_batch)
 
         all_predicted_labels += predicted_labels
         all_original_labels += original_labels
