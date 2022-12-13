@@ -261,10 +261,11 @@ def compute_f1_score(test_set, trainer):
         predictions = trainer.model(X_batch_cuda)
 
         predicted_labels = get_predicted_labels(predictions)
+        Y_batch_1d = get_predicted_labels(Y_batch)
 
-        f1_macro_score += f1_score(Y_batch.numpy(), predicted_labels, average='macro')
-        f1_micro_score += f1_score(Y_batch.numpy(), predicted_labels, average='micro')
-        f1_weighted_score += f1_score(Y_batch.numpy(), predicted_labels, average='weighted')
+        f1_macro_score += f1_score(Y_batch_1d, predicted_labels, average='macro')
+        f1_micro_score += f1_score(Y_batch_1d, predicted_labels, average='micro')
+        f1_weighted_score += f1_score(Y_batch_1d, predicted_labels, average='weighted')
 
         batch_num += 1
 

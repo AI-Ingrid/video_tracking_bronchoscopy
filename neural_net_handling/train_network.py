@@ -97,7 +97,7 @@ class Trainer:
         self.dataloader_train, self.dataloader_val = dataloaders
 
         # Validate our model everytime we pass through 25% of the dataset
-        self.num_steps_per_val = len(self.dataloader_train) // 230
+        self.num_steps_per_val = len(self.dataloader_train) // 4
         self.global_step = 0
         self.start_time = time.time()
 
