@@ -32,9 +32,9 @@ def compute_loss_and_accuracy(
     num_samples = 0
     batch_size = 0
     if network_type == "segment_det_net":
-        f1_metric = tm.F1Score(average='macro', task='multilabel', num_labels=27)
+        f1_metric = tm.F1Score(average='macro', task='multilabel', num_classes=27)
     else:
-        f1_metric = tm.F1Score(average='macro', task='multilabel', num_labels=2)
+        f1_metric = tm.F1Score(average='macro', task='multilabel', num_classes=2)
     with torch.no_grad():
         for (X_batch, Y_batch) in tqdm(dataloader):
             # Transfer images/labels to GPU VRAM, if possible
