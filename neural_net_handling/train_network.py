@@ -46,7 +46,7 @@ def compute_loss_and_accuracy(
 
             predictions = torch.softmax(output_probs, dim=1)
             decoded_Y_batch = utils.decode_one_hot_encoded_labels(Y_batch)
-            targets = decoded_Y_batch.tensor()
+            targets = torch.tensor(decoded_Y_batch.numpy())
 
             num_samples += Y_batch.shape[0]
 
