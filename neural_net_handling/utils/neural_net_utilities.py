@@ -176,7 +176,7 @@ def plot_predictions_test_set(test_set, trainer, path, network_type):
                 # Create plots
                 plot_path = pathlib.Path(path)
                 plot_path.mkdir(exist_ok=True)
-                fig = plt.figure(figsize=(25, 6), constrained_layout=True)
+                fig = plt.figure(figsize=(35, 12), constrained_layout=True)
                 images = X_batch[batch_index]
                 fig.suptitle(f"Predicted Label: {predicted_name_label} \n Original Label: {original_name_label}")
 
