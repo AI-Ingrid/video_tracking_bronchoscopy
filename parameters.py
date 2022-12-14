@@ -30,12 +30,12 @@ hidden_nodes = 128
 # Data paths
 root_directory_path = f"data_handling/data/{dataset_type}"
 videos_path = root_directory_path + f"/{dataset_type}_videos/"
-frames_path = root_directory_path + f"/{dataset_type}_frames"
+frames_path = root_directory_path + f"/{dataset_type}_frames_{fps}"
 label_file_path = root_directory_path + f"/labeling_info/{dataset_type}_branches_positions_numbers.txt"
 names_file_path = root_directory_path + f"/labeling_info/{dataset_type}_branch_number_name.txt"
-dataset_path = root_directory_path + f"/raw_data/{dataset_type}_{network_type}_data.csv"
-test_dataset_path = root_directory_path + f"/datasets/test/{dataset_type}_{network_type}_test_dataset.csv"
-train_dataset_path = root_directory_path + f"/datasets/train/{dataset_type}_{network_type}_train_dataset.csv"
+dataset_path = root_directory_path + f"/raw_data/{dataset_type}_{network_type}_{fps}_data.csv"
+test_dataset_path = root_directory_path + f"/datasets/test/{dataset_type}_{network_type}_{fps}_test_dataset.csv"
+train_dataset_path = root_directory_path + f"/datasets/train/{dataset_type}_{network_type}_{fps}_train_dataset.csv"
 
 
 # Visualization
