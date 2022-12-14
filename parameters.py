@@ -11,13 +11,13 @@ frame_dimension = (256, 256)  # Dimension of the cropped frames that will be sen
 fps = 10
 
 # CNN & RNN
-network_type = "direction_det_net"  # {"direction_det_net", "segment_det_net"}
+network_type = "segment_det_net"  # {"direction_det_net", "segment_det_net"}
 train_mean = torch.tensor([0.4678, 0.3913, 0.3522])
 test_mean = torch.tensor([0.4654, 0.3889, 0.3505])
 train_std = torch.tensor([0.2417, 0.1829, 0.1488])
 test_std = torch.tensor([0.2422, 0.1825, 0.1487])
 
-num_bronchus_generations = None  # {None, 1, 2, 3, 4}
+num_bronchus_generations = 4  # {None, 1, 2, 3, 4}
 path_to_trained_models = f"neural_net_handling/trained_models/{network_type}_{num_bronchus_generations}_gens.pt"
 epochs = 15
 batch_size = 32
