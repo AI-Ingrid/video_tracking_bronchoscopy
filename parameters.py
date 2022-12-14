@@ -18,7 +18,6 @@ train_std = torch.tensor([0.2417, 0.1829, 0.1488])
 test_std = torch.tensor([0.2422, 0.1825, 0.1487])
 
 num_bronchus_generations = 4  # {None, 1, 2, 3, 4}
-path_to_trained_models = f"neural_net_handling/trained_models/{network_type}_{num_bronchus_generations}_gens.pt"
 epochs = 15
 batch_size = 32
 learning_rate = 7e-5
@@ -40,7 +39,7 @@ train_dataset_path = root_directory_path + f"/datasets/train/{dataset_type}_{net
 
 
 # Visualization
-train_plot_path = f"data_handling/plots/training/{network_type}/"
+train_plot_path = f"data_handling/plots/training/{network_type}_{fps}/"
 train_plot_name = f"{network_type}_batchsize_{batch_size}_epochs_{epochs}_generations_{num_bronchus_generations}"
-test_plot_path = f"data_handling/plots/testing/{network_type}/"
-confusion_matrix_path = f"data_handling/plots/testing/{network_type}/"
+test_plot_path = f"data_handling/plots/testing/{network_type}_{fps}/"
+confusion_matrix_path = f"data_handling/plots/testing/{network_type}_{fps}/"

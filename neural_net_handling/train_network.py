@@ -73,7 +73,8 @@ class Trainer:
                  epochs: int,
                  model: torch.nn.Module,
                  dataloaders: typing.List[torch.utils.data.DataLoader],
-                 network_type: str):
+                 network_type: str,
+                 fps: int):
         """
             Initialize our trainer class.
         """
@@ -82,6 +83,7 @@ class Trainer:
         self.early_stop_count = early_stop_count
         self.epochs = epochs
         self.network_type = network_type
+        self.fps = fps
 
         # Since we are doing multi-class classification, we use CrossEntropyLoss
         self.loss_criterion = torch.nn.CrossEntropyLoss()
@@ -114,7 +116,7 @@ class Trainer:
             loss=collections.OrderedDict(),
             accuracy=collections.OrderedDict()
         )
-        self.checkpoint_dir = pathlib.Path(f"checkpoints_{self.network_type}")
+        self.checkpoint_dir = pathlib.Path(f"checkpoints_{self.network_type}_{self.fps}")
 
     def validation_step(self):
         """

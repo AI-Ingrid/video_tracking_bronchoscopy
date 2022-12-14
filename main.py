@@ -72,7 +72,8 @@ def main():
         epochs,
         neural_net,
         train_dataloaders,
-        network_type
+        network_type,
+        fps,
     )
     trainer.train()
 
