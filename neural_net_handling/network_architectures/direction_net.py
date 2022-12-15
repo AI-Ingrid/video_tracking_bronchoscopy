@@ -59,10 +59,8 @@ class DirectionDetNet(nn.Module):
     def forward(self, X):
         X = self.time_distributed(X)
         X = self.RNN(X)[0]
-        print("X shape after RNN: ", X.shape)
         # Reshape from 3D to 2D
         original_shape = tuple(X.shape)
         X_reshaped = X.reshape((batch_size, 5*self.hidden_nodes))
-        print("X shape before classifier: ", X_reshaped.shape)
         X = self.classifier(X_reshaped)
         return X
