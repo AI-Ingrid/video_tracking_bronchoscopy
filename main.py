@@ -15,12 +15,12 @@ def main():
     random.seed(0)
     # ---------------- PREPROCESS ----------------------------------------------
     # Create frames, label them and preprocess them
-    #convert_video_to_frames(videos_path, frames_path)
-    #crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
+    convert_video_to_frames(videos_path, frames_path)
+    crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
 
     # ---------------- DATASET ----------------------------------------------
     # Create a csv file for all frames for train dataset and test dataset
-    #create_csv_files_for_datasets(dataset_path, train_dataset_path, test_dataset_path, test_split, network_type)
+    create_csv_files_for_datasets(dataset_path, train_dataset_path, test_dataset_path, test_split, network_type)
 
     # Create train and test dataset
     train_dataset = BronchusDataset(

@@ -7,6 +7,7 @@ import re
 import pandas as pd
 import numpy as np
 import matplotlib
+import pathlib
 import matplotlib.pyplot as plt
 from tqdm import tqdm   # create progress bars, see sample usage below
 from scipy.spatial.distance import cdist
@@ -23,6 +24,8 @@ def convert_video_to_frames(input_data_path, output_data_path):
     """
     Code build upon work from author: Ingrid Tveten (SINTEF)
     """
+    output_path = pathlib.Path(output_data_path)
+    output_path.mkdir(exist_ok=True)
     # Create frames from video if no frames exist
     if len(os.listdir(output_data_path)) <= 1:  # != 0
         print("Converting frames..")
