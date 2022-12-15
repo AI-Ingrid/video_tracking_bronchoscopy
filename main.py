@@ -2,7 +2,7 @@ from parameters import *
 from data_handling.dataset_handler import *
 from torchvision import transforms
 
-from data_handling.utils.dataset_utils import create_csv_files_for_datasets, compute_mean_std, create_datasets_for_a_given_fps
+from data_handling.utils.dataset_utils import create_csv_files_for_datasets, compute_mean_std
 from neural_net_handling.network_architectures.segment_net import SegmentDetNet
 from neural_net_handling.network_architectures.direction_net import DirectionDetNet
 from neural_net_handling.train_network import Trainer, create_plots, compute_loss_and_accuracy
