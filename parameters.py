@@ -8,7 +8,7 @@ dataset_type = 'phantom'  # {'virtual', 'phantom', 'human'}
 test_split = 0.2
 validation_split = 0.1
 frame_dimension = (256, 256)  # Dimension of the cropped frames that will be sent into CNN
-fps = 2  # {10, 5, 2}
+fps = 5  # {10, 5, 2}
 
 # CNN & RNN
 network_type = "segment_det_net"  # {"direction_det_net", "segment_det_net"}
