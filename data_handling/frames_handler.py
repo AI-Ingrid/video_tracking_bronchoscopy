@@ -85,11 +85,12 @@ def convert_video_to_frames(input_data_path, output_data_path):
                 video_path = os.path.join(input_data_path, video_fn)
                 vid_reader = imageio.get_reader(video_path)
                 metadata = vid_reader.get_meta_data()
-                FPS = metadata['fps']
-                # Update fps in parameters.py
-                parameters.fps = FPS
+                FPS = parameters.fps
+                metadata['fps'] = FPS
                 duration = metadata['duration']
-                nb_frames = math.floor(metadata['fps'] * metadata['duration'])
+                print("Their duration: ", duration)
+                nb_frames = math.floor(FPS * metadata['duration'])
+                print("Number of frames: ", nb_frames)
 
                 trim_time = VideoTrimmingLimits(t1=0., t2=duration)
                 start_frame, end_frame = get_trim_start_end_frames(trim_time, FPS, nb_frames)
@@ -273,20 +274,53 @@ def add_labels(network_type, path_to_timestamp_file, path_to_position_file, fram
             # Backward
             frames.sort(key=natural_keys, reverse=True)
 
-        for index in range(4, len(frames), 5):
-            # Add a new row
-            new_row = pd.DataFrame({
-                "Frame_1": [frames[index - 4]],
-                "Frame_2": [frames[index - 3]],
-                "Frame_3": [frames[index - 2]],
-                "Frame_4": [frames[index - 1]],
-                "Frame_5": [frames[index]],
-                "Label": video_count % 2  # Forward:1, Backward:0
-            }).reset_index(drop=True)
+        if parameters.fps == 10:
+            for index in range(4, len(frames), 5):
+                # Add a new row
+                new_row = pd.DataFrame({
+                    "Frame_1": [frames[index - 4]],
+                    "Frame_2": [frames[index - 3]],
+                    "Frame_3": [frames[index - 2]],
+                    "Frame_4": [frames[index - 1]],
+                    "Frame_5": [frames[index]],
+                    "Label": video_count % 2  # Forward:1, Backward:0
+                }).reset_index(drop=True)
 
-            # Store labeled sequence of frames in dataframe
-            new_dataframe = pd.concat([new_row, dataframe.loc[:]]).reset_index(drop=True)
-            dataframe = new_dataframe
+                # Store labeled sequence of frames in dataframe
+                new_dataframe = pd.concat([new_row, dataframe.loc[:]]).reset_index(drop=True)
+                dataframe = new_dataframe
+
+        elif parameters.fps == 5:
+            for index in range(9, len(frames), 10):
+                # Add a new row
+                new_row = pd.DataFrame({
+                    "Frame_1": [frames[index - 9]],  # 0
+                    "Frame_2": [frames[index - 7]],  # 2
+                    "Frame_3": [frames[index - 5]],  # 4
+                    "Frame_4": [frames[index - 3]],  # 6
+                    "Frame_5": [frames[index-1]],    # 8
+                    "Label": video_count % 2  # Forward:1, Backward:0
+                }).reset_index(drop=True)
+
+                # Store labeled sequence of frames in dataframe
+                new_dataframe = pd.concat([new_row, dataframe.loc[:]]).reset_index(drop=True)
+                dataframe = new_dataframe
+
+        elif parameters.fps == 2:
+            for index in range(24, len(frames), 25):
+                # Add a new row
+                new_row = pd.DataFrame({
+                    "Frame_1": [frames[index - 24]],  # 0
+                    "Frame_2": [frames[index - 19]],  # 5
+                    "Frame_3": [frames[index - 14]],  # 10
+                    "Frame_4": [frames[index - 9]],   # 15
+                    "Frame_5": [frames[index-4]],     # 20
+                    "Label": video_count % 2  # Forward:1, Backward:0
+                }).reset_index(drop=True)
+
+                # Store labeled sequence of frames in dataframe
+                new_dataframe = pd.concat([new_row, dataframe.loc[:]]).reset_index(drop=True)
+                dataframe = new_dataframe
 
     # Segment Detection Net
     elif network_type == "segment_det_net":
@@ -297,8 +331,11 @@ def add_labels(network_type, path_to_timestamp_file, path_to_position_file, fram
         positions_and_labels = get_possible_positions_and_its_labels()
 
         # Match positions from video with possible positions to label the positions in video
-        dataframe = match_frames_with_positions_and_timestamps(positions, path_to_timestamp_file, frames, positions_and_labels, dataframe)
+        temp_dataframe = match_frames_with_positions_and_timestamps(positions, path_to_timestamp_file, frames, positions_and_labels, dataframe)
 
+        # Perform sampling of frames
+        sampling_frequency = int((1 / parameters.fps) * 10)
+        dataframe = temp_dataframe.iloc[::sampling_frequency, :]
     else:
         print("No network type registered")
 
@@ -384,6 +421,6 @@ def crop_scale_and_label_the_frames(dataset_type, network_type, path_to_patients
                         video_count += 1
                         print("Converting dataframe to csv file..")
                         # Convert dataframe into CSV file in order to store the dataset as a file
-                        dataset_path = parameters.root_directory_path + f"/{parameters.dataset_type}_{parameters.network_type}_dataset.csv"
+                        dataset_path = parameters.dataset_path
                         dataframe.to_csv(dataset_path, index=False)
 

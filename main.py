@@ -2,8 +2,7 @@ from parameters import *
 from data_handling.dataset_handler import *
 from torchvision import transforms
 
-from data_handling.utils.dataset_utils import create_csv_files_for_datasets, compute_mean_std
-
+from data_handling.utils.dataset_utils import create_csv_files_for_datasets, compute_mean_std, create_datasets_for_a_given_fps
 from neural_net_handling.network_architectures.segment_net import SegmentDetNet
 from neural_net_handling.network_architectures.direction_net import DirectionDetNet
 from neural_net_handling.train_network import Trainer, create_plots, compute_loss_and_accuracy
@@ -15,13 +14,13 @@ def main():
     random.seed(0)
     # ---------------- PREPROCESS ----------------------------------------------
     # Create frames, label them and preprocess them
-    convert_video_to_frames(videos_path, frames_path)
+    #convert_video_to_frames(videos_path, frames_path)
     crop_scale_and_label_the_frames(dataset_type, network_type, frames_path)
 
     # ---------------- DATASET ----------------------------------------------
     # Create a csv file for all frames for train dataset and test dataset
     create_csv_files_for_datasets(dataset_path, train_dataset_path, test_dataset_path, test_split, network_type)
-
+    """"
     # Create train and test dataset
     train_dataset = BronchusDataset(
         csv_file=train_dataset_path,
@@ -108,7 +107,7 @@ def main():
     # F1 score
     print("computing f1 score..")
     compute_f1_score(test, trainer)
-
+    """
 
 if __name__ == "__main__":
     main()
