@@ -32,6 +32,7 @@ def main():
             #transforms.Normalize(mean=train_mean, std=train_std)
         ]),
     )
+    """ 
 
     # Create train dataset
     test_dataset = BronchusDataset(
@@ -107,6 +108,7 @@ def main():
     # F1 score
     print("computing f1 score..")
     compute_f1_score(test, trainer)
+    """
 
 if __name__ == "__main__":
     main()
