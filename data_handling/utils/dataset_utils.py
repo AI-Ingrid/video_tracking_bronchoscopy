@@ -1,5 +1,5 @@
 import pandas as pd
-from parameters import root_directory_path, dataset_type
+from parameters import root_directory_path, dataset_type, fps
 import os
 import random
 import torch

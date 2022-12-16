@@ -331,11 +331,7 @@ def add_labels(network_type, path_to_timestamp_file, path_to_position_file, fram
         positions_and_labels = get_possible_positions_and_its_labels()
 
         # Match positions from video with possible positions to label the positions in video
-        temp_dataframe = match_frames_with_positions_and_timestamps(positions, path_to_timestamp_file, frames, positions_and_labels, dataframe)
-
-        # Perform sampling of frames
-        sampling_frequency = int((1 / parameters.fps) * 10)
-        dataframe = temp_dataframe.iloc[::sampling_frequency, :]
+        dataframe = match_frames_with_positions_and_timestamps(positions, path_to_timestamp_file, frames, positions_and_labels, dataframe)
     else:
         print("No network type registered")
 
@@ -419,8 +415,13 @@ def crop_scale_and_label_the_frames(dataset_type, network_type, path_to_patients
                         # Add labels to the frames in current video
                         dataframe = add_labels(parameters.network_type, path_to_timestamp_file, path_to_position_file, frame_list, dataframe, video_count)
                         video_count += 1
-                        print("Converting dataframe to csv file..")
-                        # Convert dataframe into CSV file in order to store the dataset as a file
-                        dataset_path = parameters.dataset_path
-                        dataframe.to_csv(dataset_path, index=False)
 
+        # Perform sampling of relevant frames for SegmentDetNet
+        if network_type == "segment_det_net":
+            sampling_frequency = int((1 / parameters.fps) * 10)
+            dataframe = dataframe.iloc[::sampling_frequency, :]
+
+        # Convert dataframe into CSV file in order to store the dataset as a file
+        print("Converting dataframe to csv file..")
+        dataset_path = parameters.dataset_path
+        dataframe.to_csv(dataset_path, index=False)
