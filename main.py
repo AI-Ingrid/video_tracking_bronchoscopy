@@ -82,29 +82,30 @@ def main():
     print("loading best model.. ")
     trainer.model = trainer.load_best_model()
 
+
     # Visualize training
     #create_plots(trainer, train_plot_path, train_plot_name)
 
     # Split the datasets in train, test and validation
     train, validation = train_dataloaders
     test = test_dataloader
-
+    """ 
     # Test CNN model
-    #print("---- TRAINING ----")
-    #train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
-    #print("---- VALIDATION ----")
-    #val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, torch.nn.CrossEntropyLoss())
-    #print("---- TEST ----")
-    #test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
+    print("---- TRAINING ----")
+    train_loss, train_acc = compute_loss_and_accuracy(train, neural_net, torch.nn.CrossEntropyLoss())
+    print("---- VALIDATION ----")
+    val_loss, val_acc = compute_loss_and_accuracy(validation, neural_net, torch.nn.CrossEntropyLoss())
+    print("---- TEST ----")
+    test_loss, test_acc = compute_loss_and_accuracy(test, neural_net, torch.nn.CrossEntropyLoss())
 
     # Plot confusion matrix
-    #print("plotting confusion matrix")
-    #plot_confusion_matrix(test, trainer, confusion_matrix_path)
+    print("plotting confusion matrix")
+    plot_confusion_matrix(test, trainer, confusion_matrix_path)
 
-    #print("plotting test images")
+    print("plotting test images")
     # Plot test images with predicted and original label on it
-    #plot_predictions_test_set(test, trainer, test_plot_path, network_type)
-
+    plot_predictions_test_set(test, trainer, test_plot_path, network_type)
+    """
     # F1 score
     print("computing f1 score..")
     compute_f1_score(test, trainer)
