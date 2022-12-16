@@ -240,7 +240,8 @@ class Trainer:
             print(
                 f"Could not load best checkpoint. Did not find under: {self.checkpoint_dir}")
             return
-        return self.model.load_state_dict(state_dict)
+        self.model.load_state_dict(state_dict)
+
 
 
 def create_plots(trainer: Trainer, path: str, name: str):

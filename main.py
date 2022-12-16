@@ -80,7 +80,7 @@ def main():
     # ---------------- TESTING ----------------------------------------------
     # Load neural net model
     print("loading best model.. ")
-    trainer.model = trainer.load_best_model()
+    trainer.load_best_model()
 
 
     # Visualize training
