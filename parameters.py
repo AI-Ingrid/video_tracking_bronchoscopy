@@ -8,7 +8,7 @@ dataset_type = 'phantom'  # {'virtual', 'phantom', 'human'}
 test_split = 0.2
 validation_split = 0.1
 frame_dimension = (256, 256)  # Dimension of the cropped frames that will be sent into CNN
-fps = 5  # {10, 5, 2}
+fps = 2  # {10, 5, 2}
 
 # CNN & RNN
 network_type = "segment_det_net"  # {"direction_det_net", "segment_det_net"}
@@ -18,7 +18,7 @@ train_std = torch.tensor([0.2417, 0.1829, 0.1488])
 test_std = torch.tensor([0.2422, 0.1825, 0.1487])
 
 num_bronchus_generations = 4  # {None, 1, 2, 3, 4}
-epochs = 15
+epochs = 20
 batch_size = 32
 learning_rate = 7e-5
 early_stop_count = 5
