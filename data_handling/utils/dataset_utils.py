@@ -101,7 +101,6 @@ def get_class_distribution(dataloader):
     return count
 
 
-
 def plot_dataset_distribution(train, validation=None, test=None):
     train_dist = get_class_distribution(train)
     x_axis = list(train_dist.keys())
@@ -109,7 +108,7 @@ def plot_dataset_distribution(train, validation=None, test=None):
     # TRAIN
     if validation == None and test == None:
         y_train = list(train_dist.values())
-        plt.bar(x_axis, y_train, 0.6, label="Train")
+        plt.bar(x_axis, y_train, label="Train")
         type = "train"
 
     # VALIDATION
@@ -118,7 +117,7 @@ def plot_dataset_distribution(train, validation=None, test=None):
         y_validation = list(validation_dist.values())
         while len(y_validation) != 26:
             y_validation.append(0)
-        plt.bar(x_axis, y_validation, 0.6, label="Validation")
+        plt.bar(x_axis, y_validation, label="Validation")
         type = "validation"
 
     # TEST
@@ -127,7 +126,7 @@ def plot_dataset_distribution(train, validation=None, test=None):
         y_test = list(test_dist.values())
         while len(y_test) != 26:
             y_test.append(0)
-        plt.bar(x_axis, y_test, 0.6, label="Test")
+        plt.bar(x_axis, y_test, label="Test")
         type = "test"
 
     print("Plotting: ", type)

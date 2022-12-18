@@ -90,9 +90,9 @@ def main():
     test = test_dataloader
 
     # Visualize data sets
-    plot_dataset_distribution(train)
-    plot_dataset_distribution(train, validation=validation)
-    plot_dataset_distribution(train, test=test)
+    plot_dataset_distribution(train, validation=None, test=None)
+    plot_dataset_distribution(train, validation=validation, test=None)
+    plot_dataset_distribution(train, validation=None, test=test)
     """
     # Test CNN model
     print("---- TRAINING ----")
