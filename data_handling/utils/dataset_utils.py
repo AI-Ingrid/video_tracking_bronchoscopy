@@ -1,9 +1,11 @@
+import matplotlib.pyplot as plt
 import pandas as pd
 from parameters import root_directory_path, dataset_type, fps
 import os
 import random
 import torch
 from tqdm import tqdm
+import numpy as np
 
 
 def get_num_videos():
@@ -79,15 +81,16 @@ def create_csv_files_for_datasets(dataset_path, train_dataset_path, test_dataset
 
 def get_class_distribution_for_batch(y_batch, count):
     for label in y_batch:
+        decoded_label = np.argmax(label)
         if not count:
-            count[int(label)] = 1
+            count[int(decoded_label)] = 1
         else:
             labels = list(count.keys())
-            if label not in labels:
-                count[int(label)] = 1
+            if decoded_label not in labels:
+                count[int(decoded_label)] = 1
 
             else:
-                count[int(label)] += 1
+                count[int(decoded_label)] += 1
     return count
 
 
@@ -96,6 +99,44 @@ def get_class_distribution(dataloader):
     for x_batch, y_batch in dataloader:
         count = get_class_distribution_for_batch(y_batch, count)
     return count
+
+
+
+def plot_dataset_distribution(train, validation=None, test=None):
+    train_dist = get_class_distribution(train)
+    x_axis = list(train_dist.keys())
+    type = "None"
+    # TRAIN
+    if validation == None and test == None:
+        y_train = list(train_dist.values())
+        plt.bar(x_axis, y_train, 0.6, label="Train")
+        type = "train"
+
+    # VALIDATION
+    elif validation != None and test == None:
+        validation_dist = get_class_distribution(validation)
+        y_validation = list(validation_dist.values())
+        while len(y_validation) != 26:
+            y_validation.append(0)
+        plt.bar(x_axis, y_validation, 0.6, label="Validation")
+        type = "validation"
+
+    # TEST
+    elif validation == None and test != None:
+        test_dist = get_class_distribution(test)
+        y_test = list(test_dist.values())
+        while len(y_test) != 26:
+            y_test.append(0)
+        plt.bar(x_axis, y_test, 0.6, label="Test")
+        type = "test"
+
+    print("Plotting: ", type)
+    plt.title(f'Distribution in SegmentDetNet with {fps} FPS for the {type} data set')
+    plt.xlabel('Labels')
+    plt.ylabel('Number of examples')
+    plt.legend()
+    plt.savefig(f"6_{type}_distribution_{fps}_fps.png")
+    plt.show()
 
 
 def compute_mean_std(dataset, dataloader, frame_dim):
