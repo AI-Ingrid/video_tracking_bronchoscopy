@@ -91,8 +91,8 @@ def main():
 
     # Visualize data sets
     plot_dataset_distribution(train)
-    plot_dataset_distribution(train, validation)
-    plot_dataset_distribution(train, test)
+    plot_dataset_distribution(train, validation=validation)
+    plot_dataset_distribution(train, test=test)
     """
     # Test CNN model
     print("---- TRAINING ----")
