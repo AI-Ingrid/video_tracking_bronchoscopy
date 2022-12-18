@@ -102,6 +102,7 @@ def get_class_distribution(dataloader):
 
 
 def plot_dataset_distribution(train, validation=None, test=None):
+    plt.figure()
     train_dist = get_class_distribution(train)
     x_axis = list(train_dist.keys())
     type = "None"
@@ -135,7 +136,6 @@ def plot_dataset_distribution(train, validation=None, test=None):
     plt.ylabel('Number of examples')
     plt.legend()
     plt.savefig(f"6_{type}_distribution_{fps}_fps.png")
-    plt.show()
 
 
 def compute_mean_std(dataset, dataloader, frame_dim):
